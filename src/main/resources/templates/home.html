@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-slot="http://www.w3.org/1999/XSL/Transform"
+      xmlns:v-for="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Мои списки</title>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/popup-default.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script type="text/x-template" id="modal-template">
+    </script>
+</head>
+    <body>
+        <h1 th:inline="text">Здравствуйте, [[${#httpServletRequest.remoteUser}]]!</h1>
+        <form th:action="@{/logout}" method="post">
+            <input type="submit" value="Sign Out">
+        </form>
+        <div id="app">
+            <button id="show-modal" name="add-list" class="btn-dark-olive-green" v-on:click="showModal = true">Добавить список</button>
+            <div v-if="showModal" @close="showModal = false">
+                <div class="modal-mask">
+                    <div class="modal-wrapper">
+                        <div class="modal-container">
+                            <div class="modal-header">
+                            Создаем список
+                                <div class="modal-close close" @click="showModal = false">
+                                </div>
+                            </div>
+                            <div class="modal-body">
+                                <input v-model="newList.title" class="input-olive" name="list-name" placeholder="Введите название">
+                                <ul class="list-items">
+                                    <li v-for="(item, index) in newList.items" class="list-item" :id-item="item.id">
+                                        <input v-model="item.is_marked" name="list-item-checkbox" type="checkbox">
+                                        <input v-model="item.text" name="list-item-text" type="text" placeholder="Введите пункт">
+                                        <div class="close" v-on:click="removeItemOfList(index)"></div>
+                                    </li>
+                                </ul>
+                                <div class="list-items-control">
+                                    <button name="list-item-add" v-on:click="addItemIntoList()">Добавить новый пункт</button>
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button class="modal-default-button" @click="pushList()">
+                                    Добавить
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <pre>{{ $data }}</pre>
+        </div>
+    <script src="/js/main.js"></script>
+    </body>
+</html>

@@ -1,0 +1,69 @@
+html {
+    box-sizing: border-box;
+}
+
+*,
+*::after,
+*::before{
+    box-sizing: inherit;
+}
+
+body {
+}
+
+ul, h1, h2, h3, h4, h5, p{
+    margin: 0;
+    padding: 0;
+}
+
+li {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    display: inline-block;
+}
+
+.close{
+    cursor: pointer;
+    position: relative;
+}
+.close::before, .close::after{
+    content: "";
+    position: absolute;
+    display: block;
+    top: 50%;
+    left: 50%;
+}
+.close::before{
+  transform: translateX(-50%) translateY(-50%) rotate(45deg);
+}
+.close::after{
+  transform: translateX(-50%) translateY(-50%) rotate(-45deg);
+}
+.modal-header .close{
+    width: 20px;
+    height: 20px;
+}
+.modal-header .close::before, .modal-header .close::after{
+    background-color: #556B2F;
+    width: 20px;
+    height: 4px;
+}
+.list-item{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.list-item .close{
+    width: 15px;
+    height: 15px;
+}
+.list-item .close::before, .list-item .close::after{
+    background-color: #686e5d;
+    width: 15px;
+    height: 2px;
+}
