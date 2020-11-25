@@ -13,4 +13,6 @@ public interface ListRepo extends CrudRepository<List, Long> {
 //    @Query("from List l, User u where u.username = :username and u.id = l.listId")
 //    List findListByUsername(@Param("username") String username);
 
+    java.util.List<List> findAll();
+
 }

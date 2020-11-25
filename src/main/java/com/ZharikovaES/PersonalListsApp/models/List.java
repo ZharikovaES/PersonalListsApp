@@ -19,7 +19,7 @@ public class List implements Serializable {
     private String title;
 
     @JsonManagedReference
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "list", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "list", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private Set<Item> items;
 
     @ElementCollection(targetClass = Tag.class, fetch = FetchType.EAGER)
