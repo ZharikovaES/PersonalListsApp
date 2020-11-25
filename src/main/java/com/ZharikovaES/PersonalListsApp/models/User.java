@@ -36,7 +36,7 @@ public class User implements UserDetails {
     private Date dateLastActivity;
 
     @JsonManagedReference
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
     private Set<List> lists;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
