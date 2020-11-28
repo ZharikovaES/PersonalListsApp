@@ -1,10 +1,6 @@
 package com.ZharikovaES.PersonalListsApp.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
-import com.fasterxml.jackson.annotation.JsonProperty;
-
+import com.fasterxml.jackson.annotation.*;
 import javax.persistence.*;
 import java.io.Serializable;
 
@@ -12,7 +8,7 @@ import java.io.Serializable;
 @Table(name = "items")
 public class Item implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
     @Column(name = "is_marked", columnDefinition = "BOOLEAN")
@@ -67,13 +63,4 @@ public class Item implements Serializable {
         this.list = list;
     }
 
-    @Override
-    public String toString() {
-        return "Item{" +
-                "id=" + id +
-                ", isMarked=" + isMarked +
-                ", text='" + text + '\'' +
-                ", list=" + list +
-                '}';
-    }
 }

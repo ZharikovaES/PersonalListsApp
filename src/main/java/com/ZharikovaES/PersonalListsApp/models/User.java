@@ -1,10 +1,7 @@
 package com.ZharikovaES.PersonalListsApp.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
-import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
@@ -35,9 +32,12 @@ public class User implements UserDetails {
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateLastActivity;
 
+    @Column(name = "timezone")
+    private String timezoneID;
+
     @JsonManagedReference
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    private Set<List> lists;
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<List> lists = new HashSet<>();;
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
@@ -48,18 +48,6 @@ public class User implements UserDetails {
 
     public Set<List> getLists() {
         return lists;
-    }
-
-    public void setLists(Set<List> lists) {
-        this.lists = lists;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getUsername() {
@@ -86,10 +74,6 @@ public class User implements UserDetails {
         return isActive();
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return getRoles();
@@ -103,6 +87,37 @@ public class User implements UserDetails {
         this.password = password;
     }
 
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public Date getDateRegistration() {
+        return dateRegistration;
+    }
+
+    public Date getDateLastActivity() {
+        return dateLastActivity;
+    }
+
+    public void setLists(Set<List> lists) {
+        this.lists = lists;
+    }
+
+    public Set<Role> getRole() {
+        return role;
+    }
+
+    public void setRole(Set<Role> role) {
+        this.role = role;
+    }
 
     public boolean isActive() {
         return active;
@@ -121,41 +136,20 @@ public class User implements UserDetails {
         this.role = role;
     }
 
-    public Date getDateRegistration() {
-        return dateRegistration;
-    }
-
     public void setDateRegistration(Date dateRegistration) {
         this.dateRegistration = dateRegistration;
-    }
-
-    public Set<Role> getRole() {
-        return role;
-    }
-
-    public void setRole(Set<Role> role) {
-        this.role = role;
-    }
-
-    public Date getDateLastActivity() {
-        return dateLastActivity;
     }
 
     public void setDateLastActivity(Date dateLastActivity) {
         this.dateLastActivity = dateLastActivity;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", active=" + active +
-                ", dateRegistration=" + dateRegistration +
-                ", dateLastActivity=" + dateLastActivity +
-                ", lists=" + lists +
-                ", role=" + role +
-                '}';
+    public String getTimezoneID() {
+        return timezoneID;
     }
+
+    public void setTimezoneID(String timezone) {
+        this.timezoneID = timezone;
+    }
+
 }

@@ -7,12 +7,17 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
+@Repository
 public interface ListRepo extends CrudRepository<List, Long> {
 //    @Modifying
 //    @Query("from List l, User u where u.username = :username and u.id = l.listId")
 //    List findListByUsername(@Param("username") String username);
 
-    java.util.List<List> findAll();
+//    @Query("select l from List l where l.listId = :id")
+    java.util.List<List> findAllByListId(Long listId);
 
+
+    java.util.List<List> findAll();
 }
