@@ -1,12 +1,14 @@
 package com.ZharikovaES.PersonalListsApp.models;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonGetter;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Date;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Entity
 @Table(name = "lists")
@@ -18,33 +20,51 @@ public class List implements Serializable {
     @Column(name = "title")
     private String title;
 
-    @JsonManagedReference
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "list", cascade = {CascadeType.MERGE, CascadeType.PERSIST})
-    private Set<Item> items;
+    @JsonIgnore
+    @Column(name = "list_id", insertable = false, updatable =false)
+    private Long listId;
 
-    @ElementCollection(targetClass = Tag.class, fetch = FetchType.EAGER)
+    @JsonManagedReference
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "list", cascade = CascadeType.ALL , orphanRemoval = true)
+    private java.util.List<Item> items;
+
+    @ElementCollection(fetch = FetchType.EAGER, targetClass = Tag.class)
     @CollectionTable(name = "record_tags", joinColumns = @JoinColumn(name = "record_id"))
-    @Enumerated(EnumType.STRING)
-    private Set<Tag> tags;
+    private Set<Tag> tags  = new HashSet<>();;
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id")
     private User user;
 
+    @JsonIgnore
     @Column(name = "date_update")
     @Temporal(TemporalType.TIMESTAMP)
     private Date dateUpdate;
+
+    @JsonIgnore
+    @Column(name = "date_update_tz")
+    @Temporal(TemporalType.TIMESTAMP)
+    private Date dateUpdateTZ;
+
+    @JsonIgnore
+    @Transient
+    private String dateUpdateTZStr;
+
+    @JsonIgnore
+    @Transient
+    private SimpleDateFormat formatForDate = new SimpleDateFormat("HH:mm:ss ' ' E dd.MM.yyyy");
 
     public List() {
         this.dateUpdate = new Date();
     }
 
-    public List(String title, Set<Item> items, Set<Tag> tags, User user) {
+    public List(String title, java.util.List<Item> items, Set<Tag> tags, User user) {
         this.title = title;
-        if (items != null) this.items = items;
-        if (tags != null) this.tags = tags;
-        this.dateUpdate = new Date();
+        this.items = items;
+        this.tags = tags;
+        dateUpdate = new Date();
+        dateUpdateTZ = Calendar.getInstance(TimeZone.getTimeZone(user.getTimezoneID())).getTime();
         this.user = user;
     }
 
@@ -65,11 +85,11 @@ public class List implements Serializable {
         this.title = title;
     }
 
-    public Set<Item> getItems() {
+    public java.util.List<Item> getItems() {
         return items;
     }
 
-    public void setItems(Set<Item> items) {
+    public void setItems(java.util.List<Item> items) {
         this.items = items;
     }
 
@@ -97,15 +117,46 @@ public class List implements Serializable {
         this.dateUpdate = dateUpdate;
     }
 
-    @Override
-    public String toString() {
-        return "List{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", items=" + items +
-                ", tags=" + tags +
-                ", user=" + user +
-                ", dateUpdate=" + dateUpdate +
-                '}';
+    public Date getDateUpdateTZ() {
+        return dateUpdateTZ;
     }
+
+    public void setDateUpdateTZ(Date dateUpdateTZ) {
+        this.dateUpdateTZ = dateUpdateTZ;
+    }
+
+    public void setDateUpdateTZByUser() {
+        this.dateUpdateTZ = Calendar.getInstance(TimeZone.getTimeZone(user.getTimezoneID())).getTime();
+    }
+
+    @JsonGetter("date_update")
+    public String dateToString() {
+        dateUpdateTZStr = formatForDate.format(dateUpdateTZ);
+        return dateUpdateTZStr;
+    }
+
+    public SimpleDateFormat getFormatForDate() {
+        return formatForDate;
+    }
+
+    public void setFormatForDate(SimpleDateFormat formatForDate) {
+        this.formatForDate = formatForDate;
+    }
+
+    public Long getListId() {
+        return listId;
+    }
+
+    public void setListId(Long listId) {
+        this.listId = listId;
+    }
+
+    public String getDateUpdateTZStr() {
+        return dateUpdateTZStr;
+    }
+
+    public void setDateUpdateTZStr(String dateUpdateTZStr) {
+        this.dateUpdateTZStr = dateUpdateTZStr;
+    }
+
 }

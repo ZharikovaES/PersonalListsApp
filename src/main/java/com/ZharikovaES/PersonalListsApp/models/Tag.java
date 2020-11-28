@@ -2,7 +2,6 @@ package com.ZharikovaES.PersonalListsApp.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Set;
 
 @Entity
 @Table(name = "tags")
