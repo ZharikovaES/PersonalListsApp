@@ -26,6 +26,10 @@ a {
     display: inline-block;
 }
 
+input{
+    display: block;
+}
+
 .close{
     cursor: pointer;
     position: relative;
@@ -66,4 +70,12 @@ a {
     background-color: #686e5d;
     width: 15px;
     height: 2px;
+}
+
+.field-units{
+    display: flex;
+    justify-content: space-between;
+}
+textarea[name=note-text]{
+    resize: none;
 }
