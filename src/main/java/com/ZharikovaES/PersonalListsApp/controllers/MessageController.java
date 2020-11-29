@@ -61,19 +61,19 @@ public class MessageController {
 
     @RequestMapping(method = RequestMethod.GET, value = "/lists", produces = "application/json")
     public ResponseEntity<java.util.List<List>> getAllLists(@AuthenticationPrincipal User user) {
-        java.util.List<List> lists =  listRepo.findAllByListId(user.getId());
+        java.util.List<List> lists =  listRepo.findAllByUserId(user.getId());
         return new ResponseEntity<>(lists, HttpStatus.OK);
     }
     @RequestMapping(method = RequestMethod.GET, value = "/notes", produces = "application/json")
     public ResponseEntity<java.util.List<Note>> getAllNotes(@AuthenticationPrincipal User user) {
-        java.util.List<Note> notes = noteRepo.findAllByNoteId(user.getId());
+        java.util.List<Note> notes = noteRepo.findAllByUserId(user.getId());
         return new ResponseEntity<>(notes, HttpStatus.OK);
     }
 
     @RequestMapping(method = RequestMethod.PUT, value = "/update-list", produces = "application/json")
     public ResponseEntity<List> updateList(@RequestBody List list, @AuthenticationPrincipal User user) {
         list.setUser(user);
-        list.setDateUpdateTZByUser();
+        list.setDateUpdateByUser();
         Long id = list.getId();
 
         listRepo.save(list);
@@ -84,7 +84,7 @@ public class MessageController {
     @RequestMapping(method = RequestMethod.PUT, value = "/update-note", produces = "application/json")
     public ResponseEntity<Note> updateNote(@RequestBody Note note, @AuthenticationPrincipal User user) {
         note.setUser(user);
-        note.setDateUpdateTZByUser();
+        note.setDateUpdateByUser();
         Long id = note.getId();
 
         noteRepo.save(note);

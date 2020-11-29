@@ -4,9 +4,7 @@ import com.ZharikovaES.PersonalListsApp.models.List;
 import com.ZharikovaES.PersonalListsApp.models.User;
 import com.ZharikovaES.PersonalListsApp.repos.UserRepo;
 import org.springframework.context.ApplicationListener;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.event.AuthenticationSuccessEvent;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,7 +12,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.TimeZone;
 
 @Service
 public class UserService implements

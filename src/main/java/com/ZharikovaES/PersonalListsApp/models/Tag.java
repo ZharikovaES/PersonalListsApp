@@ -2,6 +2,8 @@ package com.ZharikovaES.PersonalListsApp.models;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "tags")
@@ -14,6 +16,11 @@ public class Tag implements Serializable {
     @Column(name = "name")
     private String name;
 
+    @ManyToMany(mappedBy = "tags")
+    private Set<List> lists = new HashSet<>();
+
+    @ManyToMany(mappedBy = "tags")
+    private Set<Note> notes = new HashSet<>();
 
     public Tag() {
     }
@@ -38,4 +45,19 @@ public class Tag implements Serializable {
         this.name = name;
     }
 
+    public Set<List> getLists() {
+        return lists;
+    }
+
+    public void setLists(Set<List> lists) {
+        this.lists = lists;
+    }
+
+    public Set<Note> getNotes() {
+        return notes;
+    }
+
+    public void setNotes(Set<Note> notes) {
+        this.notes = notes;
+    }
 }

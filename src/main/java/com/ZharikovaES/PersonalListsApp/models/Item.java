@@ -19,7 +19,7 @@ public class Item implements Serializable {
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "item_id")
+    @JoinColumn(name = "list_id")
     private List list;
 
     public Item() {
