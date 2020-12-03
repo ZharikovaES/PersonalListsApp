@@ -1,15 +1,18 @@
 package com.ZharikovaES.PersonalListsApp.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.io.Serializable;
 import java.util.*;
 
 @Entity
 @Table(name = "users")
-public class User implements UserDetails {
+public class User implements UserDetails, Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -35,14 +38,27 @@ public class User implements UserDetails {
     @Column(name = "timezone")
     private String timezoneID;
 
-    @JsonManagedReference
+//    @JsonIgnoreProperties("user")
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<List> lists = new HashSet<>();;
+    @JsonManagedReference
+    private Set<List> lists = new HashSet<>();
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private Set<Note> notes = new HashSet<>();
 
     @ElementCollection(targetClass = Role.class, fetch = FetchType.EAGER)
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     private Set<Role> role;
+
+//    @JsonIgnoreProperties("user")
+
+    @JsonManagedReference
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Tag> tags = new HashSet<>();
+
     public User() {
     }
 
@@ -127,7 +143,6 @@ public class User implements UserDetails {
         this.active = active;
     }
 
-
     public Set<Role> getRoles() {
         return role;
     }
@@ -151,5 +166,22 @@ public class User implements UserDetails {
     public void setTimezoneID(String timezone) {
         this.timezoneID = timezone;
     }
+
+    public Set<Tag> getTags() {
+        return tags;
+    }
+
+    public void setTags(Set<Tag> tags) {
+        this.tags = tags;
+    }
+
+    public Set<Note> getNotes() {
+        return notes;
+    }
+
+    public void setNotes(Set<Note> notes) {
+        this.notes = notes;
+    }
+
 
 }

@@ -19,13 +19,13 @@
         <div id="app">
             <button id="show-modal-list" name="add-list" class="btn-dark-olive-green" v-on:click="showPopUpListAdd = true">Добавить список</button>
             <button id="show-modal-note" name="add-note" class="btn-dark-olive-green" v-on:click="showPopUpNoteAdd = true">Добавить заметку</button>
-            <button id="show-modal-tag" name="add-tag" class="btn-dark-olive-green" v-on:click="showPopUpTagAdd = true">Добавить тег</button>
+<!--            <button id="show-modal-tag" name="add-tag" class="btn-dark-olive-green" v-on:click="showPopUpTagAdd = true">Добавить тег</button>-->
             <popup-unit-data :show-modal="showPopUpListAdd" :list="newList" v-on:close="closePopUpAdd">
                 <template v-slot:modal-header-title>
                      Создаем список
                 </template>
                 <template v-slot:modal-body>
-                    <modal-body-list :list="newList" v-on:item-id="addItemIntoNewList"/>
+                    <modal-body-list :list="newList" v-on:item-id="addItemIntoNewList" v-on:tag-id="addTagIntoNewList"/>
                 </template>
                 <template v-slot:modal-footer>
                     <button class="modal-default-button" v-on:click="pushList">
@@ -38,7 +38,7 @@
                     Редактируем список
                 </template>
                 <template v-slot:modal-body>
-                    <modal-body-list :list="modifiedList" v-on:item-id="addItemIntoModifiedList"/>
+                    <modal-body-list :list="modifiedList" v-on:item-id="addItemIntoModifiedList" v-on:tag-id="addTagIntoModifiedList"/>
                 </template>
                 <template v-slot:modal-footer>
                     <button class="modal-default-button" v-on:click="changeList">
@@ -51,7 +51,7 @@
                      Создаем заметку
                 </template>
                 <template v-slot:modal-body>
-                    <modal-body-note :note="newNote"/>
+                    <modal-body-note :note="newNote" v-on:tag-id="addTagIntoNewNote"/>
                 </template>
                 <template v-slot:modal-footer>
                     <button class="modal-default-button" v-on:click="pushNote">
@@ -64,7 +64,7 @@
                     Редактируем заметку
                 </template>
                 <template v-slot:modal-body>
-                    <modal-body-note :note="modifiedNote"/>
+                    <modal-body-note :note="modifiedNote" v-on:tag-id="addTagIntoModifiedNote"/>
                 </template>
                 <template v-slot:modal-footer>
                     <button class="modal-default-button" v-on:click="changeNote">
@@ -72,24 +72,17 @@
                     </button>
                 </template>
             </popup-unit-data>
-            <popup-unit-data :show-modal="showPopUpTagAdd" v-on:close="closePopUpAdd">
-                <template v-slot:modal-header-title>
-                    Создаем тег
-                </template>
-                <template v-slot:modal-body>
-                    <modal-body-tag :tag="newTag"/>
-                </template>
-                <template v-slot:modal-footer>
-                    <button class="modal-default-button" v-on:click="pushTag">
-                        Добавить
-                    </button>
-                </template>
-            </popup-unit-data>
+            <div>
+            <field-tags :tags="tags" v-on:show-all="showAllLists" v-on:sort-tag-id="sortByTag" v-on:del="deleteTag"/>
+            </div>
+            <div>
+            <v-select :options="options" v-on:selected-check="optionSelect" />
+            </div>
             <div class="field-units">
                 <div>
-                <field-lists :lists="lists" v-on:edit="editList" /></div>
+                <field-lists :lists="lists" v-on:edit="editList" :show-all-lists="showAllLists" /></div>
                 <div>
-                <field-notes :notes="notes" v-on:edit="editNote" /></div>
+                <field-notes :notes="notes" v-on:edit="editNote" :show-all-notes="showAllNotes" /></div>
             </div>
         </div>
     <script src="/js/main.js"></script>

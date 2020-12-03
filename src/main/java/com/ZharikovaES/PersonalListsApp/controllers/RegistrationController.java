@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.persistence.CollectionTable;
 import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 public class RegistrationController {
@@ -50,6 +47,9 @@ public class RegistrationController {
         user.setRoles(Collections.singleton(Role.USER));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         Date createdDate = new Date();
+//        Calendar calendar = Calendar.getInstance();
+//        calendar.setTimeInMillis(event.getTimestamp());
+//        user.setTimezoneID(calendar.getTimeZone().getID());
         user.setDateRegistration(createdDate);
         user.setDateLastActivity(createdDate);
         userRepo.save(user);

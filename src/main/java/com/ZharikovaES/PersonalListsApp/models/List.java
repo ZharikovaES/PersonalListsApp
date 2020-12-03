@@ -1,9 +1,6 @@
 package com.ZharikovaES.PersonalListsApp.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonGetter;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -16,30 +13,34 @@ public class List extends UnitData implements Serializable {
 
     @JsonManagedReference
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "list", cascade = CascadeType.ALL , orphanRemoval = true)
-    private java.util.List<Item> items;
+    private Set<Item> items = new HashSet<>();
 
+//    @JsonIgnore
+
+//    @JsonManagedReference
     @ManyToMany(cascade = { CascadeType.ALL })
     @JoinTable(
             name = "list_tags",
             joinColumns = { @JoinColumn(name = "list_id") },
             inverseJoinColumns = { @JoinColumn(name = "tag_id") }
     )
+    @JsonIgnoreProperties("lists")
     private Set<Tag> tags = new HashSet<>();
 
     public List() {
     }
 
-    public List(String title, java.util.List<Item> items, Set<Tag> tags, User user) {
+    public List(String title, Set<Item> items, Set<Tag> tags, User user) {
         super(user, title);
         this.items = items;
         this.tags = tags;
     }
 
-    public java.util.List<Item> getItems() {
+    public Set<Item> getItems() {
         return items;
     }
 
-    public void setItems(java.util.List<Item> items) {
+    public void setItems(Set<Item> items) {
         this.items = items;
     }
 
@@ -50,4 +51,5 @@ public class List extends UnitData implements Serializable {
     public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
+
 }

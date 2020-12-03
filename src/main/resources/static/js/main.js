@@ -34,15 +34,22 @@ Vue.component('modal-body-list', {
     props: ['list'],
     data() {
         return {
-            countItems: 0
+            countItems: 0,
+            countTags: 0
         }
       },
     methods: {
       addItemIntoList: function () {
                 this.$emit('item-id', ++this.countItems);
       },
+      addTagIntoList: function () {
+                this.$emit('tag-id', ++this.countTags);
+      },
       removeItemOfList: function (index) {
                 this.list.items.splice(index, 1);
+      },
+      removeTagOfList: function (index) {
+                this.list.tags.splice(index, 1);
       }
       },
     template: `<div class="modal-body">
@@ -54,42 +61,71 @@ Vue.component('modal-body-list', {
                            <div class="close" v-on:click="removeItemOfList(index)"></div>
                        </li>
                    </ul>
-                   <div class="list-items-control">
+                   <ul class="list-tags">
+                       <li v-for="(tag, index) in list.tags" :key="tag.t_id" class="list-tag">
+                           <input v-model="tag.name" name="list-tag-name" type="text" placeholder="Введите тег">
+                           <div class="close" v-on:click="removeTagOfList(index)"></div>
+                       </li>
+                   </ul>
+                   <div class="popup-control">
                        <button name="list-item-add" v-on:click="addItemIntoList">Добавить новый пункт</button>
+                       <button name="list-tag-add" v-on:click="addTagIntoList">Добавить тег</button>
                    </div>
                </div>`
 });
 Vue.component('modal-body-note', {
     props: ['note'],
+        data() {
+            return {
+                countTags: 0
+            }
+          },
+        methods: {
+          addTagIntoNote: function () {
+                    this.$emit('tag-id', ++this.countTags);
+          },
+          removeTagOfNote: function (index) {
+                    this.note.tags.splice(index, 1);
+          }
+          },
     template: `<div class="modal-body">
-                   <input v-model="note.title" class="input-olive" name="note-name" type="text" placeholder="Введите название">
-                   <textarea v-model="note.text" rows="10" cols="50" name="note-text" placeholder="Введите заметку"></textarea>
+                    <input v-model="note.title" class="input-olive" name="note-name" type="text" placeholder="Введите название">
+                    <textarea v-model="note.text" rows="10" cols="50" name="note-text" placeholder="Введите заметку"></textarea>
+                    <ul class="list-tags">
+                      <li v-for="(tag, index) in note.tags" :key="tag.t_id" class="note-tag">
+                          <input v-model="tag.name" name="list-tag-name" type="text" placeholder="Введите тег">
+                          <div class="close" v-on:click="removeTagOfNote(index)"></div>
+                      </li>
+                    </ul>
+                    <div class="popup-control">
+                      <button name="note-tag-add" v-on:click="addTagIntoNote">Добавить тег</button>
+                    </div>
                </div>`
 });
-Vue.component('modal-body-tag', {
-    props: ['newTag'],
-//    data() {
-//        return {
-//            colorPicker: (new iro.ColorPicker('#picker')).on('color:change', getColor),
-//            newTag: {
-//                name: "",
-//                color: ""
-//            }
-//        }
+//Vue.component('modal-body-tag', {
+//    props: ['newTag'],
+////    data() {
+////        return {
+////            colorPicker: (new iro.ColorPicker('#picker')).on('color:change', getColor),
+////            newTag: {
+////                name: "",
+////                color: ""
+////            }
+////        }
+////    },
+//    methods: {
+////        getColor: function(color) {
+////            let rgba = color.rgbaString;
+////            console.log(rgba);
+////            this.newTag.color = rgba;
+////            this.$emit"tag", newTag);
+////        }
 //    },
-    methods: {
-//        getColor: function(color) {
-//            let rgba = color.rgbaString;
-//            console.log(rgba);
-//            this.newTag.color = rgba;
-//            this.$emit"tag", newTag);
-//        }
-    },
-    template: `<div class="modal-body">
-                   <input v-model="newTag.name" class="input-olive" name="tag-input" type="text" placeholder="Введите название">
-//                   <div id="picker"></div>
-               </div>`,
-});
+//    template: `<div class="modal-body">
+//                   <input v-model="newTag.name" class="input-olive" name="tag-input" type="text" placeholder="Введите название">
+////                   <div id="picker"></div>
+//               </div>`,
+//});
 Vue.component('list-item', {
   props: ['item'],
   template: `<li class="item-field-list__items">
@@ -98,9 +134,48 @@ Vue.component('list-item', {
 });
 Vue.component('tag', {
   props: ['tag'],
-  template: `<li class="field-lists__list_tag field-unit-tag" :style="background-color: tag.color">
+    data(){
+       return {
+         tagColor: {
+//           background-color: ,
+         }
+       }
+    },
+  template: `<li class="field-lists__list-tag field-unit-tag">
                 {{ tag.name }}
              </li>`
+});
+Vue.component('v-select', {
+    props: ['options'],
+    data() {
+        return {
+            isOptionsVisible: false,
+            selected: {name: "Сначала новые записи", value: 0}
+        }
+    },
+    template: `<div class="v-select">
+                <p v-on:click="isOptionsVisible = !isOptionsVisible" class="v-select__title">{{ selected.name }}</p>
+                <div v-if="isOptionsVisible" class="v-select__options">
+                    <p v-for="option in options" :key="option.value" v-on:click="selectOptions(option)">{{ option.name }}</p>
+                </div>
+             </div>`,
+    methods: {
+        selectOptions(option) {
+            console.log(1);
+            this.isOptionsVisible = false;
+            this.selected = option;
+            this.$emit("selectedCheck", option.value);
+        },
+        hideSelect() {
+            this.isOptionsVisible = false;
+        }
+    },
+    mounted() {
+        document.addEventListener('click', this.hideSelect.bind(this), true);
+    },
+    beforeDestroy() {
+        document.removeEventListener('click', this.hideSelect);
+    }
 });
 
 Vue.component('field-list', {
@@ -133,7 +208,7 @@ Vue.component('field-list', {
                         </ul>
                      </div>
                      <div class="field-lists__list-tags field-unit-tags">
-                        <tag v-for="(tag, index) in list.tags" :key="tag.id" :id-tag="tag.id" :item="tag"/>
+                        <tag v-for="(tag, index) in list.tags" :key="tag.id" :id-tag="tag.id" :tag="tag"/>
                      </div>
                      <button class="field-list__btn-edit btn-edit-close" v-on:click="editList">Редактировать</button>
                  </li>`
@@ -167,49 +242,72 @@ Vue.component('field-note', {
                         <p class="field-note__text">{{ note.text }}</p>
                      </div>
                      <div class="field-notes__note-tags field-unit-tags">
-                        <tag v-for="(tag, index) in note.tags" :key="tag.id" :id-tag="tag.id" :item="tag"/>
+                        <tag v-for="(tag, index) in note.tags" :key="tag.id" :id-tag="tag.id" :tag="tag"/>
                      </div>
                      <button class="field-note__btn-edit btn-edit-close" v-on:click="editNote">Редактировать</button>
                  </li>`
 
 });
 Vue.component('field-lists', {
-  props: ['lists'],
+  props: ['lists', 'showAllLists'],
   template: `<ul class="field-list">
                     <field-list v-for="(list, index) in lists" :key="list.id" :list="list" :lists="lists" v-on:edit="editList" />
              </ul>`,
     created: function() {
-        console.log(this.lists);
-            fetch("http://127.0.0.1:8080/lists", {
-              method: "GET"
-            })
-              .then(response => {
-                if (!response.ok) throw Error(response.statusText);
-                return response.json();
-              }).then(data => { data.forEach(i => this.lists.push(i))})
-              .catch(error => console.log(error));
-        },
+        if(Boolean(this.showAllLists)){
+            this.showAllLists();
+        }
+    },
     methods: {
         editList: function(l){
             this.$emit('edit', l);
         },
       }
   })
-Vue.component('field-notes', {
-  props: ['notes'],
-  template: `<ul class="field-note">
-                <field-note v-for="(note, index) in notes" :key="note.id" :note="note" :notes="notes" v-on:edit="editNote" />
+Vue.component('field-tags', {
+  props: ['tags'],
+  template: `<ul class="field-tags">
+                    <li v-on:click="showAll">Все записи</li>
+                    <li v-for="(tag, index) in tags" :key="tag.id">
+                        <span class="tag-name" v-on:click="sortByTag(tag.id)">{{ tag.name }}</span>
+                        <div class="close" v-on:click="deleteTag(index)"></div>
+                    </li>
              </ul>`,
     created: function() {
-        console.log(this.notes);
-            fetch("http://127.0.0.1:8080/notes", {
+        console.log(this.tags);
+            fetch("http://127.0.0.1:8080/tags", {
               method: "GET"
             })
               .then(response => {
                 if (!response.ok) throw Error(response.statusText);
                 return response.json();
-              }).then(data => { data.forEach(i => this.notes.push(i))})
+              }).then(data => {
+                  console.log(data, this.tags);
+                  data.forEach(i => this.tags.push(i));
+              })
               .catch(error => console.log(error));
+        },
+    methods: {
+        deleteTag(index){
+        this.$emit('del', index);
+        },
+        sortByTag(id){
+        this.$emit('sort-tag-id', id);
+        },
+        showAll(){
+        this.$emit('show-all');
+        }
+      }
+  })
+Vue.component('field-notes', {
+  props: ['notes', 'showAllNotes'],
+  template: `<ul class="field-note">
+                <field-note v-for="(note, index) in notes" :key="note.id" :note="note" :notes="notes" v-on:edit="editNote" />
+             </ul>`,
+    created: function() {
+            if(Boolean(this.showAllNotes)){
+                this.showAllNotes();
+            }
         },
     methods: {
         editNote: function(n){
@@ -225,45 +323,82 @@ let app = new Vue({
     showPopUpListChange: false,
     showPopUpNoteAdd: false,
     showPopUpNoteChange: false,
-    showPopUpTagAdd: false,
+//    showPopUpTagAdd: false,
     newList: {
         title: "",
         items: [{
             it_id: 0,
             is_marked: false,
             text: ""
-        }]},
+        }],
+        tags: [{
+            t_id: 0,
+            name: ""
+        }]
+        },
     modifiedList: {
         items: [{
             it_id: 0,
             is_marked: false,
             text: ""
-        }]},
+        }],
+        tags: [{
+            t_id: 0,
+            name: ""
+        }]
+        },
     lists: [],
     newNote: {
         title: "",
-        text: ""
+        text: "",
+        tags: [{
+              name: ""
+          }]
         },
     modifiedNote: {
         title: "",
-        text: ""
+        text: "",
+        tags: [{
+              name: ""
+          }]
         },
-    notes: []
-    },
+    notes: [],
     newTag: {
+        t_id: 0,
         name: ""
         },
-    tags: []
+    modifiedTag: {
+        t_id: 0,
+        name: ""
+    },
+    tags: [],
+    options: [{
+        name: "Сначала новые записи", value: 0
+    },{
+        name: "Сначала старые записи", value: 1
+    }],
+    selectedVal: 0
+    },
   mounted() {
   },
     methods: {
         addItemIntoNewList: function (it_id) {
-                  console.log(it_id);
                   this.newList.items.push({it_id: it_id, is_marked: false, text: ""});
               },
         addItemIntoModifiedList: function (it_id) {
-                  console.log(it_id);
                   this.modifiedList.items.push({it_id: it_id, is_marked: false, text: ""});
+              },
+        addTagIntoNewList: function (t_id) {
+                  this.newList.tags.push({t_id: t_id, name: ""});
+              },
+        addTagIntoModifiedList: function (t_id) {
+                  this.modifiedList.tags.push({t_id: t_id, name: ""});
+              },
+        addTagIntoNewNote: function (t_id) {
+                  this.newNote.tags.push({t_id: t_id, name: ""});
+              },
+        addTagIntoModifiedNote: function (t_id) {
+                  this.modifiedNote.tags.push({t_id: t_id, name: ""});
               },
       pushList: function(){
           this.showPopUpListAdd = false;
@@ -278,15 +413,27 @@ let app = new Vue({
                     if (!response.ok) throw Error(response.statusText);
                     return response.json();
                   })
-                  .then(data => {console.log(data); this.lists.push(data);})
+                  .then(data => {console.log(data);
+                  this.lists.push(data.list);
+                  this.tags = data.tags;
+                  })
                   .catch(error => console.log(error));
-                        this.newList = {
-                         title: "",
-                         items: [{
-                             it_id: 0,
-                             is_marked: false,
-                             text: ""
-                         }]};
+                    this.newList = {
+                     title: "",
+                     items: [{
+                         it_id: 0,
+                         is_marked: false,
+                         text: ""
+                     }],
+                     tags: [{
+                         t_id: 0,
+                         name: ""
+                     }]
+                     },
+                     this.newTag = {
+                         t_id: 0,
+                         name: ""
+                         };
       },
       pushNote: function(){
           this.showPopUpNoteAdd = false;
@@ -301,30 +448,24 @@ let app = new Vue({
                     if (!response.ok) throw Error(response.statusText);
                     return response.json();
                   })
-                  .then(data => this.notes.push(data))
+                  .then(data => {
+                    this.notes.push(data.note);
+                    this.tags = data.tags;
+                    console.log(this.tags);
+                    })
                   .catch(error => console.log(error));
                         this.newNote = {
                          title: "",
                          text: "",
+                            tags: [{
+                               t_id: 0,
+                               name: ""
+                            }]
                          };
-      },
-      pushTag: function(){
-          this.showPopUpTagAdd = false;
-                fetch("http://127.0.0.1:8080/push-tag", {
-                  method: "POST",
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify(this.newTag)
-                })
-                  .then(response => {
-                    if (!response.ok) throw Error(response.statusText);
-                  })
-                  .then(data => this.tags.push(data))
-                  .catch(error => console.log(error));
                         this.newTag = {
-                         name: ""
-                         };
+                          t_id: 0,
+                          name: ""
+                          };
       },
       changeList: function(){
           this.showPopUpListChange = false;
@@ -343,9 +484,10 @@ let app = new Vue({
                 console.log(data);
                 let index = 0;
                 this.lists.forEach((e, i) => {
-                    if (e.id === data.id) { index = i; }
+                    if (e.id === data.list.id) { index = i; }
                 });
-                this.lists.splice(index, 1, data);
+                this.lists.splice(index, 1, data.list);
+                this.tags = data.tags;
             })
             .catch(error => console.log(error));
 
@@ -372,9 +514,10 @@ let app = new Vue({
                 console.log(data);
                 let index = 0;
                 this.notes.forEach((e, i) => {
-                    if (e.id === data.id) { index = i; }
+                    if (e.id === data.note.id) { index = i; }
                 });
-                this.notes.splice(index, 1, data);
+                this.notes.splice(index, 1, data.note);
+                this.tags = data.tags;
             })
             .catch(error => console.log(error));
       },
@@ -385,12 +528,87 @@ let app = new Vue({
       },
       addNewTag: function(newTag) {
         this.newTag = newTag;
-      }
+      },
+      deleteTag: function(index){
+          fetch(`http://127.0.0.1:8080/delete-tag/${this.tags[index].id}`
+          ,{
+            method: "DELETE"
+          })
+            .then(response => {
+              if (!response.ok) { throw Error(response.statusText); } else {
+                    let delTag = this.tags[index];
+                    console.log(delTag.id);
+                    this.tags.splice(this.tags.indexOf(delTag), 1);
+                    this.lists.forEach(l => {
+                        l.tags.forEach(t => {
+                            if (t.id === delTag.id) { l.tags.splice(l.tags.indexOf(t), 1); console.log("список", t.id); }
+                        })
+
+                    });
+                    this.notes.forEach(n => {
+                        let el;
+                        n.tags.forEach(t => {
+                            if (t.id === delTag.id) { n.tags.splice(n.tags.indexOf(t), 1); console.log("заметка", t.id); }
+                        })
+                    });
+              }
+            })
+            .catch(error => console.log(error));
+      },
       closePopUpAdd: function(){
           this.showPopUpListAdd = this.showPopUpNoteAdd = false;
       },
       closePopUpChange: function(){
           this.showPopUpListChange = this.showPopUpNoteChange = false;
+      },
+      sortByTag(id){
+                  fetch("http://127.0.0.1:8080/sort-tag", {
+                    method: "POST",
+                    headers: {
+                    'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({date: this.selectedVal, id: id})
+                  })
+                    .then(response => {
+                      if (!response.ok) throw Error(response.statusText);
+                      return response.json();
+                    }).then(data => {
+                        console.log(data);
+                        this.lists = data.lists;
+                        this.notes = data.notes;
+                    })
+                    .catch(error => console.log(error));
+      },
+      showAllLists() {
+          fetch("http://127.0.0.1:8080/lists", {
+            method: "GET"
+          })
+            .then(response => {
+              if (!response.ok) throw Error(response.statusText);
+              return response.json();
+            }).then(data => { this.lists.splice(0, this.lists.length); data.forEach(i => this.lists.push(i))})
+            .catch(error => console.log(error));
+      },
+      showAllNotes() {
+          fetch("http://127.0.0.1:8080/notes", {
+            method: "GET"
+          })
+            .then(response => {
+              if (!response.ok) throw Error(response.statusText);
+              return response.json();
+            }).then(data => { this.notes.splice(0, this.notes.length); data.forEach(i => this.notes.push(i))})
+            .catch(error => console.log(error));
+      },
+      optionSelect(optionVal) {
+        this.selectedVal = optionVal;
+//        fetch("http://127.0.0.1:8080/notes", {
+//            method: "GET"
+//        })
+//        .then(response => {
+//            if (!response.ok) throw Error(response.statusText);
+//            return response.json();
+//        }).then(data => { this.notes.splice(0, this.notes.length); data.forEach(i => this.notes.push(i))})
+//        .catch(error => console.log(error));
       }
   }
 })
