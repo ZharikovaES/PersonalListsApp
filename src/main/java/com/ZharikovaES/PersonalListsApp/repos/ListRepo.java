@@ -18,6 +18,16 @@ public interface ListRepo extends CrudRepository<List, Long> {
 //    @Query("select l from List l where l.listId = :id")
     java.util.List<List> findAllByUserId(Long userId);
 
+    @Modifying
+    @Query("delete from List l where l.id = :id")
+    void deleteById(Long id);
+
+    @Query("select l from List l join l.tags t where t.id = :id order by l.dateUpdate")
+    java.util.List<List> findAllByTagIdByDate(Long id);
+
+    @Query("select l from List l join l.tags t where t.id = :id order by l.dateUpdate desc")
+    java.util.List<List> findAllByTagIdByDateDesc(Long id);
+
 
     java.util.List<List> findAll();
 }

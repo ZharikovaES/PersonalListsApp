@@ -56,17 +56,21 @@ input{
     width: 20px;
     height: 4px;
 }
-.list-item{
+.list-item, .list-tag, .note-tag, .field-tag>li{
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.list-item .close{
+.list-item .close, .list-tag .close, .field-tag>li .close, .note-tag .close{
     width: 15px;
     height: 15px;
 }
-.list-item .close::before, .list-item .close::after{
+.list-item .close::before, .list-item .close::after,
+.list-tag .close::before, .list-tag .close::after,
+.note-tag .close::before, .note-tag .close::after,
+.field-tag>li .close::before, .field-tag>li .close::after
+{
     background-color: #686e5d;
     width: 15px;
     height: 2px;
@@ -78,4 +82,20 @@ input{
 }
 textarea[name=note-text]{
     resize: none;
+}
+.v-select{
+    position: relative;
+    width: 200px;
+    cursor: pointer;
+}
+.v-select__title{
+}
+.v-select__options p{
+    margin: 0;
+}
+.v-select__options{
+    position: absolute;
+    top: 30px;
+    left: 0;
+    width: 100%;
 }
