@@ -7,7 +7,6 @@ Vue.component('popup-unit-data', {
   methods: {
     closeModal: function() {
         this.$emit("close");
-
     }
   },
   template: `<div v-if="showModal">
@@ -77,7 +76,8 @@ Vue.component('modal-body-note', {
     props: ['note'],
         data() {
             return {
-                countTags: 0
+                countTags: 0,
+                showImage: false
             }
           },
         methods: {
@@ -86,9 +86,21 @@ Vue.component('modal-body-note', {
           },
           removeTagOfNote: function (index) {
                     this.note.tags.splice(index, 1);
-          }
+          },
+          onFileSelected(event){
+          console.log(event.target.files[0])
+            this.$emit("image", event.target.files[0]);
+          },
+            removeImage: function () {
+               this.$emit('removei', '');
+               this.showImage = false;
+            },
           },
     template: `<div class="modal-body">
+                    <div v-if="showImage" class="note__image">
+                        <div class="modal-close close" v-on:click="removeImage"></div>
+                        <img v-if="note.filename" :src="'/images/' + note.filename" />
+                    </div>
                     <input v-model="note.title" class="input-olive" name="note-name" type="text" placeholder="Введите название">
                     <textarea v-model="note.text" rows="10" cols="50" name="note-text" placeholder="Введите заметку"></textarea>
                     <ul class="list-tags">
@@ -98,34 +110,17 @@ Vue.component('modal-body-note', {
                       </li>
                     </ul>
                     <div class="popup-control">
-                      <button name="note-tag-add" v-on:click="addTagIntoNote">Добавить тег</button>
+                        <button name="note-tag-add" v-on:click="addTagIntoNote">Добавить тег</button>
+                        <input type="file" name="image-input" @change="onFileSelected" multiple>
                     </div>
-               </div>`
+               </div>`,
+               created: function() {
+                if(Boolean(this.note)){
+                    if (this.note.filename !== '') this.showImage = true;
+                    else this.showImage = false;
+                   }
+               }
 });
-//Vue.component('modal-body-tag', {
-//    props: ['newTag'],
-////    data() {
-////        return {
-////            colorPicker: (new iro.ColorPicker('#picker')).on('color:change', getColor),
-////            newTag: {
-////                name: "",
-////                color: ""
-////            }
-////        }
-////    },
-//    methods: {
-////        getColor: function(color) {
-////            let rgba = color.rgbaString;
-////            console.log(rgba);
-////            this.newTag.color = rgba;
-////            this.$emit"tag", newTag);
-////        }
-//    },
-//    template: `<div class="modal-body">
-//                   <input v-model="newTag.name" class="input-olive" name="tag-input" type="text" placeholder="Введите название">
-////                   <div id="picker"></div>
-//               </div>`,
-//});
 Vue.component('list-item', {
   props: ['item'],
   template: `<li class="item-field-list__items">
@@ -161,10 +156,9 @@ Vue.component('v-select', {
              </div>`,
     methods: {
         selectOptions(option) {
-            console.log(1);
             this.isOptionsVisible = false;
             this.selected = option;
-            this.$emit("selectedCheck", option.value);
+            this.$emit("selected-check", option.value);
         },
         hideSelect() {
             this.isOptionsVisible = false;
@@ -216,6 +210,11 @@ Vue.component('field-list', {
 });
 Vue.component('field-note', {
   props: ['note', 'notes'],
+  data() {
+    return {
+        showImage: false
+    }
+  },
     methods: {
        removeNote: function () {
             fetch(`http://127.0.0.1:8080/delete-note/${this.note.id}`
@@ -234,8 +233,17 @@ Vue.component('field-note', {
             this.$emit('edit', this.note);
        }
     },
+       created: function() {
+           if(Boolean(this.note)){
+            if (this.note.filename !== '') this.showImage = true;
+            else this.showImage = false;
+           }
+       },
       template: `<li class="field-notes__note field-note field-unit">
                      <button class="field-note__btn-remove btn-remove-close" v-on:click="removeNote">Удалить</button>
+                     <div v-if="showImage" class="note__image">
+                         <img v-if="note.filename" :src="'/images/' + note.filename" >
+                     </div>
                      <div class="field-note__wrapper">
                         <span class="field-note__update-date">{{ note.date_update }}</span>
                         <h4 class="field-note__title">{{ note.title }}</h4>
@@ -246,7 +254,6 @@ Vue.component('field-note', {
                      </div>
                      <button class="field-note__btn-edit btn-edit-close" v-on:click="editNote">Редактировать</button>
                  </li>`
-
 });
 Vue.component('field-lists', {
   props: ['lists', 'showAllLists'],
@@ -274,18 +281,17 @@ Vue.component('field-tags', {
                     </li>
              </ul>`,
     created: function() {
-        console.log(this.tags);
-            fetch("http://127.0.0.1:8080/tags", {
-              method: "GET"
-            })
-              .then(response => {
-                if (!response.ok) throw Error(response.statusText);
-                return response.json();
-              }).then(data => {
-                  console.log(data, this.tags);
-                  data.forEach(i => this.tags.push(i));
-              })
-              .catch(error => console.log(error));
+        fetch("http://127.0.0.1:8080/tags", {
+          method: "GET"
+        })
+          .then(response => {
+            if (!response.ok) throw Error(response.statusText);
+            return response.json();
+          }).then(data => {
+              console.log(data, this.tags);
+              data.forEach(i => this.tags.push(i));
+          })
+          .catch(error => console.log(error));
         },
     methods: {
         deleteTag(index){
@@ -353,14 +359,18 @@ let app = new Vue({
         text: "",
         tags: [{
               name: ""
-          }]
+          }],
+        filename: "",
+        file: null
         },
     modifiedNote: {
         title: "",
         text: "",
         tags: [{
               name: ""
-          }]
+          }],
+        filename: "",
+        file: null
         },
     notes: [],
     newTag: {
@@ -377,7 +387,9 @@ let app = new Vue({
     },{
         name: "Сначала старые записи", value: 1
     }],
-    selectedVal: 0
+    tagValueDefault: -1,
+    selectedVal: 0,
+    searchText: ""
     },
   mounted() {
   },
@@ -437,12 +449,16 @@ let app = new Vue({
       },
       pushNote: function(){
           this.showPopUpNoteAdd = false;
+          const json = JSON.stringify(this.newNote);
+          const blob = new Blob([json], {
+            type: 'application/json'
+          });
+          const data = new FormData();
+          data.append("file", this.newNote.file);
+          data.append("note", blob);
                 fetch("http://127.0.0.1:8080/push-note", {
                   method: "POST",
-                  headers: {
-                    'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify(this.newNote)
+                  body: data
                 })
                   .then(response => {
                     if (!response.ok) throw Error(response.statusText);
@@ -490,7 +506,6 @@ let app = new Vue({
                 this.tags = data.tags;
             })
             .catch(error => console.log(error));
-
       },
       editList: function(editList){
           this.showPopUpListChange = true;
@@ -499,13 +514,17 @@ let app = new Vue({
       },
       changeNote: function(){
           this.showPopUpNoteChange = false;
-          fetch("http://127.0.0.1:8080/update-note", {
-            method: "PUT",
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(this.modifiedNote)
-          })
+          const json = JSON.stringify(this.modifiedNote);
+          const blob = new Blob([json], {
+            type: 'application/json'
+          });
+          const data = new FormData();
+          data.append("file", this.modifiedNote.file);
+          data.append("note", blob);
+                fetch("http://127.0.0.1:8080/update-note", {
+                  method: "PUT",
+                  body: data
+                })
             .then(response => {
               if (!response.ok) throw Error(response.statusText);
               return response.json();
@@ -524,7 +543,6 @@ let app = new Vue({
       editNote: function(editNote){
           this.showPopUpNoteChange = true;
           this.modifiedNote = JSON.parse(JSON.stringify(editNote));
-          console.log(this.modifiedNote);
       },
       addNewTag: function(newTag) {
         this.newTag = newTag;
@@ -562,27 +580,18 @@ let app = new Vue({
           this.showPopUpListChange = this.showPopUpNoteChange = false;
       },
       sortByTag(id){
-                  fetch("http://127.0.0.1:8080/sort-tag", {
-                    method: "POST",
-                    headers: {
-                    'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({date: this.selectedVal, id: id})
-                  })
-                    .then(response => {
-                      if (!response.ok) throw Error(response.statusText);
-                      return response.json();
-                    }).then(data => {
-                        console.log(data);
-                        this.lists = data.lists;
-                        this.notes = data.notes;
-                    })
-                    .catch(error => console.log(error));
+        this.tagValueDefault = id;
+        this.showAllLists();
+        this.showAllNotes();
       },
       showAllLists() {
-          fetch("http://127.0.0.1:8080/lists", {
-            method: "GET"
-          })
+              fetch("http://127.0.0.1:8080/lists", {
+                method: "POST",
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({date: this.selectedVal, id: this.tagValueDefault})
+              })
             .then(response => {
               if (!response.ok) throw Error(response.statusText);
               return response.json();
@@ -590,25 +599,61 @@ let app = new Vue({
             .catch(error => console.log(error));
       },
       showAllNotes() {
-          fetch("http://127.0.0.1:8080/notes", {
-            method: "GET"
-          })
+            console.log(this.selectedVal);
+              fetch("http://127.0.0.1:8080/notes", {
+                method: "POST",
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({date: this.selectedVal, id: this.tagValueDefault})
+              })
             .then(response => {
               if (!response.ok) throw Error(response.statusText);
               return response.json();
             }).then(data => { this.notes.splice(0, this.notes.length); data.forEach(i => this.notes.push(i))})
             .catch(error => console.log(error));
       },
+      showAll() {
+              this.tagValueDefault = -1;
+              this.showAllLists();
+              this.showAllNotes();
+        },
       optionSelect(optionVal) {
         this.selectedVal = optionVal;
-//        fetch("http://127.0.0.1:8080/notes", {
-//            method: "GET"
-//        })
-//        .then(response => {
-//            if (!response.ok) throw Error(response.statusText);
-//            return response.json();
-//        }).then(data => { this.notes.splice(0, this.notes.length); data.forEach(i => this.notes.push(i))})
-//        .catch(error => console.log(error));
+        this.showAllLists();
+        this.showAllNotes();
+      },
+      searchByName() {
+          fetch("http://127.0.0.1:8080/search-name/",{
+                method: "POST",
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({title: this.searchText, date: this.selectedVal, id: this.tagValueDefault})
+          })
+            .then(response => {
+              if (!response.ok) throw Error(response.statusText);
+              return response.json();
+            }).then(data => {
+                console.log(data);
+                this.lists = data.lists;
+                this.notes = data.notes;
+            })
+            .catch(error => console.log(error));
+      },
+      saveImageNewNote(file) {
+        this.newNote.file = file;
+      },
+      saveImageModifiedNote(file) {
+        console.log(file);
+        this.modifiedNote.file = file;
+      },
+      removeImageNewNote(s){
+        this.newNote.filename = s;
+      },
+      removeImageModifiedNote(s){
+              console.log(this.modifiedNote);
+        this.modifiedNote.filename = s;
       }
   }
 })

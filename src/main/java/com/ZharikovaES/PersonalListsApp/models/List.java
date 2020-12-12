@@ -15,9 +15,6 @@ public class List extends UnitData implements Serializable {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "list", cascade = CascadeType.ALL , orphanRemoval = true)
     private Set<Item> items = new HashSet<>();
 
-//    @JsonIgnore
-
-//    @JsonManagedReference
     @ManyToMany(cascade = { CascadeType.ALL })
     @JoinTable(
             name = "list_tags",
