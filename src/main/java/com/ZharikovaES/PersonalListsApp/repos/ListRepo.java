@@ -22,11 +22,30 @@ public interface ListRepo extends CrudRepository<List, Long> {
     @Query("delete from List l where l.id = :id")
     void deleteById(Long id);
 
-    @Query("select l from List l join l.tags t where t.id = :id order by l.dateUpdate")
-    java.util.List<List> findAllByTagIdByDate(Long id);
+    @Query("select l from List l join l.tags t where t.id = :tId and l.userId = :uId order by l.dateUpdate asc")
+    java.util.List<List> findAllByUserIdByTagIdByDateAsc(@Param("uId") Long uId, @Param("tId") Long tId);
 
-    @Query("select l from List l join l.tags t where t.id = :id order by l.dateUpdate desc")
-    java.util.List<List> findAllByTagIdByDateDesc(Long id);
+    @Query("select l from List l where l.userId = :uId order by l.dateUpdate desc")
+    java.util.List<List> findAllByUserIdByDateDesc(@Param("uId") Long uId);
+
+    @Query("select l from List l join l.tags t where t.id = :tId and l.userId = :uId order by l.dateUpdate desc")
+    java.util.List<List> findAllByUserIdByTagIdByDateDesc(@Param("uId") Long uId, @Param("tId") Long tId);
+
+    @Query("select l from List l where l.userId = :uId order by l.dateUpdate asc")
+    java.util.List<List> findAllByUserIdByDateAsc(@Param("uId") Long uId);
+
+    @Query("select l from List l join l.tags t where t.id = :tId and l.userId = :uId and l.title LIKE CONCAT('%', :title, '%') order by l.dateUpdate asc")
+    java.util.List<List> findAllByUserIdByTitleByTagIdByDateAsc(@Param("uId") Long uId, @Param("title") String title, @Param("tId") Long tId);
+
+    @Query("select l from List l where l.userId = :uId and l.title LIKE CONCAT('%', :title, '%') order by l.dateUpdate desc")
+    java.util.List<List> findAllByUserIdByTitleByDateDesc(@Param("uId") Long uId, @Param("title") String title);
+
+    @Query("select l from List l join l.tags t where t.id = :tId and l.userId = :uId and l.title LIKE CONCAT('%', :title, '%') order by l.dateUpdate desc")
+    java.util.List<List> findAllByUserIdByTitleByTagIdByDateDesc(@Param("uId") Long uId, @Param("title") String title, @Param("tId") Long tId);
+
+    @Query("select l from List l where l.userId = :uId and l.title LIKE CONCAT('%', :title, '%') order by l.dateUpdate asc")
+    java.util.List<List> findAllByUserIdByTitleByDateAsc(@Param("uId") Long uId, @Param("title") String title);
+
 
 
     java.util.List<List> findAll();

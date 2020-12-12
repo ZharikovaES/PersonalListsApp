@@ -2,19 +2,46 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
       xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
 <head>
-    <title>Login</title>
+    <meta http-equiv="Content-Type" content="text/html" />
+    <title>Авторизация</title>
+    <link rel="stylesheet" th:href="@{/css/normalize.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
 <body>
-<div th:if="${param.error}">
-    Invalid username and password.
-</div>
-<div th:if="${param.logout}">
-    You have been logged out.
-</div>
-<form th:action="@{/login}" method="post">
-    <div><label> Username : <input type="text" name="username"> </label></div>
-    <div><label> Password: <input type="password" name="password"> </label></div>
-    <div><input type="submit" value="Войти"/></div>
-</form>
-<a th:href="@{/registration}">Регистрация</a></body>
+<header class="header">
+    <div class="container">
+        <h1 class="header__title">Авторизация</h1>
+    </div>
+</header>
+<main>
+    <div class="container">
+        <div class="form-wrapper">
+            <div th:if="${param.error}">
+                Invalid username and password.
+            </div>
+            <div th:if="${param.logout}">
+                You have been logged out.
+            </div>
+            <form th:action="@{/login}" method="post">
+                <div><label> Имя пользователя: <input type="text" name="username"> </label></div>
+                <div><label> Пароль: <input type="password" name="password"> </label></div>
+                <div><label>Запомни меня: <input type="checkbox" name="remember-me"></label></div>
+                <div><input type="submit" value="Войти"/></div>
+            </form>
+            <a th:href="@{/registration}">Регистрация</a>
+        </div>
+    </div>
+</main>
+<footer class="footer">
+    <div class="container">
+        <ul class="footer__list">
+            <li class="list-footer__item"><a href="/">О нас</a></li>
+            <li class="list-footer__item"><a href="mailto:z.kate2000@gmail.com">Связаться с нами</a></li>
+        </ul>
+        <p class="footer__text">
+            Жарикова Е.С. ИКБО-12-18
+        </p>
+    </div>
+</footer>
+</body>
 </html>

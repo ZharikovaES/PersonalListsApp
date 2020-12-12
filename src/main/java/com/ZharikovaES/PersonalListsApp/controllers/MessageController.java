@@ -10,12 +10,16 @@ import netscape.javascript.JSObject;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @RestController
@@ -31,6 +35,9 @@ public class MessageController {
     private NoteRepo noteRepo;
     @Autowired
     private TagRepo tagRepo;
+
+    @Value("${upload.path}")
+    private String uploadPath;
 
     @RequestMapping(method = RequestMethod.POST, value = "/push-list", consumes = MediaType.APPLICATION_JSON_VALUE, produces = "application/json")
     public Map<String, Object> saveList(@RequestBody List list, @AuthenticationPrincipal User user) throws JsonProcessingException {
@@ -60,8 +67,8 @@ public class MessageController {
         map.put("tags", tagList1);
         return map;
     }
-    @RequestMapping(method = RequestMethod.POST, value = "/push-note", consumes = MediaType.APPLICATION_JSON_VALUE, produces = "application/json")
-    public Map<String, Object> saveNote(@RequestBody Note note, @AuthenticationPrincipal User user) {
+    @RequestMapping(method = RequestMethod.POST, value = "/push-note", consumes = "multipart/form-data", produces = "application/json")
+    public Map<String, Object> saveNote(@RequestPart("file") MultipartFile multipartFile, @RequestPart("note") Note note, @AuthenticationPrincipal User user) throws IOException {
         java.util.List<Tag> tagList = new ArrayList<>(note.getTags());
         note.getTags().clear();
         note.setUser(user);
@@ -76,6 +83,17 @@ public class MessageController {
             note.getTags().add(tag1);
             tagRepo.save(tag1);
         }
+        if (multipartFile != null && !multipartFile.getOriginalFilename().isEmpty()) {
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdir();
+            }
+            String uuidFile = UUID.randomUUID().toString();
+            String resultFileName = uuidFile + "." + multipartFile.getOriginalFilename();
+            multipartFile.transferTo(new File(uploadPath + "/" + resultFileName));
+            System.out.println("путь " + resultFileName);
+            note.setFilename(resultFileName);
+        }
         noteRepo.save(note);
         userRepo.save(user);
         java.util.List<Tag> tagList1 = tagRepo.findAll();
@@ -85,16 +103,19 @@ public class MessageController {
         return map;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/lists", produces = "application/json")
-    public ResponseEntity<java.util.List<List>> getAllLists(@AuthenticationPrincipal User user) {
-        java.util.List<List> lists =  listRepo.findAllByUserId(user.getId());
-        return new ResponseEntity<>(lists, HttpStatus.OK);
-    }
-    @RequestMapping(method = RequestMethod.GET, value = "/notes", produces = "application/json")
-    public ResponseEntity<java.util.List<Note>> getAllNotes(@AuthenticationPrincipal User user) {
-        java.util.List<Note> notes = noteRepo.findAllByUserId(user.getId());
-        return new ResponseEntity<>(notes, HttpStatus.OK);
-    }
+//    @RequestMapping(method = RequestMethod.GET, value = "/lists", produces = "application/json/{date}")
+//    public ResponseEntity<java.util.List<List>> getAllLists(@PathVariable("date") int date, @AuthenticationPrincipal User user) {
+//        java.util.List<List> lists = new ArrayList<>();
+//        if (date == 1) {
+//            lists =  listRepo.findAllByUserIdByDate(user.getId(), date);
+//        } else lists =  listRepo.findAllByUserIdByDateDesc(user.getId(), date);
+//        return new ResponseEntity<>(lists, HttpStatus.OK);
+//    }
+//    @RequestMapping(method = RequestMethod.GET, value = "/notes", produces = "application/json")
+//    public ResponseEntity<java.util.List<Note>> getAllNotes(@AuthenticationPrincipal User user) {
+//        java.util.List<Note> notes = noteRepo.findAllByUserId(user.getId());
+//        return new ResponseEntity<>(notes, HttpStatus.OK);
+//    }
     @RequestMapping(method = RequestMethod.GET, value = "/tags", produces = "application/json")
     public ResponseEntity<java.util.List<Tag>> getAllTags(@AuthenticationPrincipal User user) {
         java.util.List<Tag> tags = tagRepo.findAll();
@@ -122,8 +143,11 @@ public class MessageController {
 
         return map;
     }
-    @RequestMapping(method = RequestMethod.PUT, value = "/update-note", produces = "application/json")
-    public Map<String, Object> updateNote(@RequestBody Note note, @AuthenticationPrincipal User user) {
+    @RequestMapping(method = RequestMethod.PUT, value = "/update-note", consumes = "multipart/form-data", produces = "application/json")
+    public Map<String, Object> updateNote(@RequestPart("file") MultipartFile multipartFile, @RequestPart Note note, @AuthenticationPrincipal User user) throws IOException {
+        File file = new File(uploadPath + "/" + note.getFilename());
+        file.delete();
+
         note.setUser(user);
         note.setDateUpdateByUser();
         Long id = note.getId();
@@ -131,6 +155,17 @@ public class MessageController {
         for (Tag tag : tagList){
             tag.setId(tagRepo.findIdByName(tag.getName()));
             tag.setUser(user);
+        }
+        if (multipartFile != null && !multipartFile.getOriginalFilename().isEmpty()) {
+            File uploadDir = new File(uploadPath);
+            if (!uploadDir.exists()) {
+                uploadDir.mkdir();
+            }
+            String uuidFile = UUID.randomUUID().toString();
+            String resultFileName = uuidFile + "." + multipartFile.getOriginalFilename();
+            multipartFile.transferTo(new File(uploadPath + "/" + resultFileName));
+            System.out.println("путь " + resultFileName);
+            note.setFilename(resultFileName);
         }
 
         noteRepo.save(note);
@@ -144,29 +179,79 @@ public class MessageController {
     }
 
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete-list/{id}")
-    public void deleteList(@PathVariable("id") Long id) {
-        listRepo.deleteById(id);
+    public void deleteList(@PathVariable("id") List list) {
+        listRepo.delete(list);
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete-note/{id}")
     public void deleteNote(@PathVariable("id") Note note) {
+        File file = new File(uploadPath + "/" + note.getFilename());
+        file.delete();
         noteRepo.delete(note);
     }
     @RequestMapping(method = RequestMethod.DELETE, value = "/delete-tag/{id}")
     public void deleteTag(@PathVariable("id") Tag tag) {
         tagRepo.delete(tag);
     }
-    @RequestMapping(method = RequestMethod.POST, value = "/sort-tag")
-    public Map<String, Object> sortByTag(@RequestBody Map<String,Object> req) {
+//    @RequestMapping(method = RequestMethod.DELETE, value = "/delete-image/{filename}")
+//    public void deleteImage(@PathVariable("id") Long id) {
+//        noteRepo.updateImage(id);
+//    }
+    @RequestMapping(method = RequestMethod.POST, value = "/lists")
+    public java.util.List<List> getAllLists(@RequestBody Map<String,Object> req, @AuthenticationPrincipal User user) {
         System.out.println(req.entrySet());
         System.out.println(req.get("date") + " " + req.get("id"));
         java.util.List<List> lists = new ArrayList<>();
-        if (((Integer) req.get("date")) == 0) {
-            lists = listRepo.findAllByTagIdByDate(Integer.toUnsignedLong((Integer)req.get("id")));
-        } else lists = listRepo.findAllByTagIdByDateDesc(Integer.toUnsignedLong((Integer)req.get("id")));
+        if ((Integer)req.get("id") != -1) {
+            if ((Integer)req.get("date") == 0) {
+                lists = listRepo.findAllByUserIdByTagIdByDateDesc(user.getId(), Integer.toUnsignedLong((Integer)req.get("id")));
+            } else lists = listRepo.findAllByUserIdByTagIdByDateAsc(user.getId(), Integer.toUnsignedLong((Integer)req.get("id")));
+        } else {
+            if ((Integer)req.get("date") == 0) {
+                lists = listRepo.findAllByUserIdByDateDesc(user.getId());
+            } else lists = listRepo.findAllByUserIdByDateAsc(user.getId());
+        }
+        return lists;
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/notes")
+    public java.util.List<Note> getAllNotes(@RequestBody Map<String,Object> req, @AuthenticationPrincipal User user) {
+        System.out.println(req.entrySet());
+        System.out.println(req.get("date") + " " + req.get("id"));
         java.util.List<Note> notes = new ArrayList<>();
-        if (((Integer) req.get("date")) == 0) {
-            notes = noteRepo.findAllByTagIdByDate(Integer.toUnsignedLong((Integer)req.get("id")));
-        } else notes = noteRepo.findAllByTagIdByDateDesc(Integer.toUnsignedLong((Integer)req.get("id")));
+        if ((Integer)req.get("id") != -1) {
+            if ((Integer)req.get("date") == 0) {
+                notes = noteRepo.findAllByUserIdByTagIdByDateDesc(user.getId(), Integer.toUnsignedLong((Integer)req.get("id")));
+            } else notes = noteRepo.findAllByUserIdByTagIdByDateAsc(user.getId(), Integer.toUnsignedLong((Integer)req.get("id")));
+        } else {
+            if ((Integer)req.get("date") == 0) {
+                notes = noteRepo.findAllByUserIdByDateDesc(user.getId());
+            } else notes = noteRepo.findAllByUserIdByDateAsc(user.getId());
+        }
+        return notes;
+    }
+
+    @RequestMapping(method = RequestMethod.POST, value = "/search-name")
+    public Map<String,Object> getByName(@RequestBody Map<String,Object> req, @AuthenticationPrincipal User user) {
+        java.util.List<List> lists = new ArrayList<>();
+        if ((Integer)req.get("id") != -1) {
+            if ((Integer)req.get("date") == 0) {
+                lists = listRepo.findAllByUserIdByTitleByTagIdByDateDesc(user.getId(), (String)req.get("title"), Integer.toUnsignedLong((Integer)req.get("id")));
+            } else lists = listRepo.findAllByUserIdByTitleByTagIdByDateAsc(user.getId(), (String)req.get("title"), Integer.toUnsignedLong((Integer)req.get("id")));
+        } else {
+            if ((Integer)req.get("date") == 0) {
+                lists = listRepo.findAllByUserIdByTitleByDateDesc(user.getId(), (String)req.get("title"));
+            } else lists = listRepo.findAllByUserIdByTitleByDateAsc(user.getId(), (String)req.get("title"));
+        }
+        java.util.List<Note> notes = new ArrayList<>();
+        if ((Integer)req.get("id") != -1) {
+            if ((Integer)req.get("date") == 0) {
+                notes = noteRepo.findAllByUserIdByTitleByTagIdByDateDesc(user.getId(), (String)req.get("title"), Integer.toUnsignedLong((Integer)req.get("id")));
+            } else notes = noteRepo.findAllByUserIdByTitleByTagIdByDateAsc(user.getId(), (String)req.get("title"), Integer.toUnsignedLong((Integer)req.get("id")));
+        } else {
+            if ((Integer)req.get("date") == 0) {
+                notes = noteRepo.findAllByUserIdByTitleByDateDesc(user.getId(), (String)req.get("title"));
+            } else notes = noteRepo.findAllByUserIdByTitleByDateAsc(user.getId(), (String)req.get("title"));
+        }
         Map<String, Object> map = new HashMap<>();
         map.put("lists", lists);
         map.put("notes", notes);

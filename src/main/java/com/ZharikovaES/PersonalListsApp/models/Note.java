@@ -1,13 +1,10 @@
 package com.ZharikovaES.PersonalListsApp.models;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.*;
 import java.util.List;
 
 @Entity
@@ -17,10 +14,9 @@ public class Note extends UnitData implements Serializable {
     @Column(name = "text")
     private String text;
 
-//    @JsonIgnore
-//    @JsonIgnoreProperties({"user", "lists", "notes"})
+    @Column(name = "image")
+    private String filename;
 
-//    @JsonManagedReference
     @ManyToMany(cascade = { CascadeType.ALL })
     @JoinTable(
             name = "note_tags",
@@ -55,4 +51,11 @@ public class Note extends UnitData implements Serializable {
         this.tags = tags;
     }
 
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
 }

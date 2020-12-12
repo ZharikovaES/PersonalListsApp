@@ -51,7 +51,7 @@ input{
     width: 20px;
     height: 20px;
 }
-.modal-header .close::before, .modal-header .close::after{
+.close::before, .close::after{
     background-color: #556B2F;
     width: 20px;
     height: 4px;
@@ -62,13 +62,14 @@ input{
     align-items: center;
 }
 
-.list-item .close, .list-tag .close, .field-tag>li .close, .note-tag .close{
+.list-item .close, .list-tag .close, .field-tag>li .close, .note-tag .close, .note-image .close{
     width: 15px;
     height: 15px;
 }
 .list-item .close::before, .list-item .close::after,
 .list-tag .close::before, .list-tag .close::after,
 .note-tag .close::before, .note-tag .close::after,
+.note-image .close::before, .note-image .close::after,
 .field-tag>li .close::before, .field-tag>li .close::after
 {
     background-color: #686e5d;
@@ -98,4 +99,9 @@ textarea[name=note-text]{
     top: 30px;
     left: 0;
     width: 100%;
+}
+
+img{
+    display: block;
+    width: 100px;
 }
