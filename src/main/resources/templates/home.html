@@ -13,13 +13,15 @@
     <div id="app">
         <header class="header">
             <div class="container">
-                <h1 class="header__title">Вы вошли, как [[${#httpServletRequest.remoteUser}]]!</h1>
-                <input v-on:keyup="searchByName" v-model="searchText" name="search-input" class="search-input" type="text" placeholder="Поиск по названию" />
-                <form th:action="@{/logout}" method="post">
-                    <button type="submit">
-                        <img alt="Выход" src="data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjUxMnB0IiB2aWV3Qm94PSIwIDAgNTExIDUxMiIgd2lkdGg9IjUxMnB0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Im0zNjEuNSAzOTJ2NDBjMCA0NC4xMTMyODEtMzUuODg2NzE5IDgwLTgwIDgwaC0yMDFjLTQ0LjExMzI4MSAwLTgwLTM1Ljg4NjcxOS04MC04MHYtMzUyYzAtNDQuMTEzMjgxIDM1Ljg4NjcxOS04MCA4MC04MGgyMDFjNDQuMTEzMjgxIDAgODAgMzUuODg2NzE5IDgwIDgwdjQwYzAgMTEuMDQ2ODc1LTguOTUzMTI1IDIwLTIwIDIwcy0yMC04Ljk1MzEyNS0yMC0yMHYtNDBjMC0yMi4wNTQ2ODgtMTcuOTQ1MzEyLTQwLTQwLTQwaC0yMDFjLTIyLjA1NDY4OCAwLTQwIDE3Ljk0NTMxMi00MCA0MHYzNTJjMCAyMi4wNTQ2ODggMTcuOTQ1MzEyIDQwIDQwIDQwaDIwMWMyMi4wNTQ2ODggMCA0MC0xNy45NDUzMTIgNDAtNDB2LTQwYzAtMTEuMDQ2ODc1IDguOTUzMTI1LTIwIDIwLTIwczIwIDguOTUzMTI1IDIwIDIwem0xMzYuMzU1NDY5LTE3MC4zNTU0NjktNDQuNzg1MTU3LTQ0Ljc4NTE1NmMtNy44MTI1LTcuODEyNS0yMC40NzY1NjItNy44MTI1LTI4LjI4NTE1NiAwLTcuODEyNSA3LjgwODU5NC03LjgxMjUgMjAuNDcyNjU2IDAgMjguMjgxMjVsMzEuODU1NDY5IDMxLjg1OTM3NWgtMjQwLjE0MDYyNWMtMTEuMDQ2ODc1IDAtMjAgOC45NTMxMjUtMjAgMjBzOC45NTMxMjUgMjAgMjAgMjBoMjQwLjE0MDYyNWwtMzEuODU1NDY5IDMxLjg1OTM3NWMtNy44MTI1IDcuODA4NTk0LTcuODEyNSAyMC40NzI2NTYgMCAyOC4yODEyNSAzLjkwNjI1IDMuOTA2MjUgOS4wMjM0MzggNS44NTkzNzUgMTQuMTQwNjI1IDUuODU5Mzc1IDUuMTIxMDk0IDAgMTAuMjM4MjgxLTEuOTUzMTI1IDE0LjE0NDUzMS01Ljg1OTM3NWw0NC43ODUxNTctNDQuNzg1MTU2YzE5LjQ5NjA5My0xOS40OTYwOTQgMTkuNDk2MDkzLTUxLjIxNDg0NCAwLTcwLjcxMDkzOHptMCAwIi8+PC9zdmc+" />
-                    </button>
-                </form>
+                <div class="header__inner">
+                    <h1 class="header__title">Вы вошли, как [[${#httpServletRequest.remoteUser}]]!</h1>
+                    <input class="input-search-name" v-on:keyup="searchByName" v-model="searchText" name="search-input" type="text" placeholder="Поиск по названию" />
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit">
+                            <img class="icon-reg" alt="Выход" src="data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjUxMnB0IiB2aWV3Qm94PSIwIDAgNTExIDUxMiIgd2lkdGg9IjUxMnB0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Im0zNjEuNSAzOTJ2NDBjMCA0NC4xMTMyODEtMzUuODg2NzE5IDgwLTgwIDgwaC0yMDFjLTQ0LjExMzI4MSAwLTgwLTM1Ljg4NjcxOS04MC04MHYtMzUyYzAtNDQuMTEzMjgxIDM1Ljg4NjcxOS04MCA4MC04MGgyMDFjNDQuMTEzMjgxIDAgODAgMzUuODg2NzE5IDgwIDgwdjQwYzAgMTEuMDQ2ODc1LTguOTUzMTI1IDIwLTIwIDIwcy0yMC04Ljk1MzEyNS0yMC0yMHYtNDBjMC0yMi4wNTQ2ODgtMTcuOTQ1MzEyLTQwLTQwLTQwaC0yMDFjLTIyLjA1NDY4OCAwLTQwIDE3Ljk0NTMxMi00MCA0MHYzNTJjMCAyMi4wNTQ2ODggMTcuOTQ1MzEyIDQwIDQwIDQwaDIwMWMyMi4wNTQ2ODggMCA0MC0xNy45NDUzMTIgNDAtNDB2LTQwYzAtMTEuMDQ2ODc1IDguOTUzMTI1LTIwIDIwLTIwczIwIDguOTUzMTI1IDIwIDIwem0xMzYuMzU1NDY5LTE3MC4zNTU0NjktNDQuNzg1MTU3LTQ0Ljc4NTE1NmMtNy44MTI1LTcuODEyNS0yMC40NzY1NjItNy44MTI1LTI4LjI4NTE1NiAwLTcuODEyNSA3LjgwODU5NC03LjgxMjUgMjAuNDcyNjU2IDAgMjguMjgxMjVsMzEuODU1NDY5IDMxLjg1OTM3NWgtMjQwLjE0MDYyNWMtMTEuMDQ2ODc1IDAtMjAgOC45NTMxMjUtMjAgMjBzOC45NTMxMjUgMjAgMjAgMjBoMjQwLjE0MDYyNWwtMzEuODU1NDY5IDMxLjg1OTM3NWMtNy44MTI1IDcuODA4NTk0LTcuODEyNSAyMC40NzI2NTYgMCAyOC4yODEyNSAzLjkwNjI1IDMuOTA2MjUgOS4wMjM0MzggNS44NTkzNzUgMTQuMTQwNjI1IDUuODU5Mzc1IDUuMTIxMDk0IDAgMTAuMjM4MjgxLTEuOTUzMTI1IDE0LjE0NDUzMS01Ljg1OTM3NWw0NC43ODUxNTctNDQuNzg1MTU2YzE5LjQ5NjA5My0xOS40OTYwOTQgMTkuNDk2MDkzLTUxLjIxNDg0NCAwLTcwLjcxMDkzOHptMCAwIi8+PC9zdmc+" />
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
         <main>
@@ -31,7 +33,7 @@
                     <modal-body-list :list="newList" v-on:item-id="addItemIntoNewList" v-on:tag-id="addTagIntoNewList"/>
                 </template>
                 <template v-slot:modal-footer>
-                    <button class="modal-default-button" v-on:click="pushList">
+                    <button class="modal-default-button btn-dark-green-back" v-on:click="pushList">
                         Добавить
                     </button>
                 </template>
@@ -44,7 +46,7 @@
                     <modal-body-list :list="modifiedList" v-on:item-id="addItemIntoModifiedList" v-on:tag-id="addTagIntoModifiedList"/>
                 </template>
                 <template v-slot:modal-footer>
-                    <button class="modal-default-button" v-on:click="changeList">
+                    <button class="modal-default-button btn-dark-green-back" v-on:click="changeList">
                         Сохранить
                     </button>
                 </template>
@@ -57,7 +59,7 @@
                     <modal-body-note :note="newNote" v-on:tag-id="addTagIntoNewNote" v-on:image="saveImageNewNote" v-on:removei="removeImageNewNote"/>
                 </template>
                 <template v-slot:modal-footer>
-                    <button class="modal-default-button" v-on:click="pushNote">
+                    <button class="modal-default-button btn-dark-green-back" v-on:click="pushNote">
                         Добавить
                     </button>
                 </template>
@@ -70,7 +72,7 @@
                     <modal-body-note :note="modifiedNote" v-on:tag-id="addTagIntoModifiedNote"  v-on:image="saveImageModifiedNote" v-on:removei="removeImageModifiedNote" />
                 </template>
                 <template v-slot:modal-footer>
-                    <button class="modal-default-button" v-on:click="changeNote">
+                    <button class="modal-default-button btn-dark-green-back" v-on:click="changeNote">
                         Сохранить
                     </button>
                 </template>
@@ -80,15 +82,17 @@
             <field-tags :tags="tags" v-on:show-all="showAll" v-on:sort-tag-id="sortByTag" v-on:del="deleteTag"/>
             </div>
             <div class="controller">
-                <button id="show-modal-list" name="add-list" class="btn-dark-olive-green" v-on:click="showPopUpListAdd = true">Добавить список</button>
-                <button id="show-modal-note" name="add-note" class="btn-dark-olive-green" v-on:click="showPopUpNoteAdd = true">Добавить заметку</button>
-                <v-select :options="options" v-on:selected-check="optionSelect" />
+                <button id="show-modal-list" name="add-list" class="btn-dark-green-back" v-on:click="showPopUpListAdd = true">Добавить список</button>
+                <button id="show-modal-note" name="add-note" class="btn-dark-green-back" v-on:click="showPopUpNoteAdd = true">Добавить заметку</button>
+                <v-select :options="options" v-on:selected-check="optionSelect" class="btn-dark-green"/>
             </div>
 
             <div class="field-units">
-                <div>
+                <div class="field-units__column">
+                    <h3 class="field-units__column-title">Списки</h3>
                 <field-lists :lists="lists" v-on:edit="editList" :show-all-lists="showAllLists" /></div>
-                <div>
+                <div class="field-units__column">
+                    <h3 class="field-units__column-title">Заметки</h3>
                 <field-notes :notes="notes" v-on:edit="editNote" :show-all-notes="showAllNotes" /></div>
             </div>
         </div>
