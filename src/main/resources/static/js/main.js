@@ -14,9 +14,10 @@ Vue.component('popup-unit-data', {
                      <div class="modal-wrapper">
                          <div class="modal-container">
                              <div class="modal-header">
-                                 <slot name="modal-header-title"></slot>
+                                 <h4 class="modal-header-title">
+                                    <slot name="modal-header-title"></slot>
+                                 </h4>
                                  <div class="modal-close close" v-on:click="closeModal"></div>
-                                 </div>
                              </div>
                              <slot name="modal-body">
                               </slot>
@@ -52,23 +53,24 @@ Vue.component('modal-body-list', {
       }
       },
     template: `<div class="modal-body">
-                   <input v-model="list.title" class="input-olive" name="list-name" placeholder="Введите название">
+                   <input v-model="list.title" class="input-olive input-dark-green" name="list-name" placeholder="Введите название">
                    <ul class="list-items">
                        <li v-for="(item, index) in list.items" :key="item.it_id" class="list-item">
                            <input v-model="item.is_marked" name="list-item-checkbox" type="checkbox">
-                           <input v-model="item.text" name="list-item-text" type="text" placeholder="Введите пункт">
+                           <input class="input-dark-green" v-model="item.text" name="list-item-text" type="text" placeholder="Введите пункт">
                            <div class="close" v-on:click="removeItemOfList(index)"></div>
                        </li>
                    </ul>
+                   <h5 class="modal-title-tags">Теги</h5>
                    <ul class="list-tags">
                        <li v-for="(tag, index) in list.tags" :key="tag.t_id" class="list-tag">
-                           <input v-model="tag.name" name="list-tag-name" type="text" placeholder="Введите тег">
+                           <input class="input-dark-green" v-model="tag.name" name="list-tag-name" type="text" placeholder="Введите тег">
                            <div class="close" v-on:click="removeTagOfList(index)"></div>
                        </li>
                    </ul>
                    <div class="popup-control">
-                       <button name="list-item-add" v-on:click="addItemIntoList">Добавить новый пункт</button>
-                       <button name="list-tag-add" v-on:click="addTagIntoList">Добавить тег</button>
+                       <button name="list-item-add"  class="btn-dark-green" v-on:click="addItemIntoList">Добавить новый пункт</button>
+                       <button name="list-tag-add"  class="btn-dark-green" v-on:click="addTagIntoList">Добавить тег</button>
                    </div>
                </div>`
 });
@@ -98,19 +100,20 @@ Vue.component('modal-body-note', {
           },
     template: `<div class="modal-body">
                     <div v-if="showImage" class="note__image">
-                        <div class="modal-close close" v-on:click="removeImage"></div>
+                        <div class="close" v-on:click="removeImage"></div>
                         <img v-if="note.filename" :src="'/images/' + note.filename" />
                     </div>
-                    <input v-model="note.title" class="input-olive" name="note-name" type="text" placeholder="Введите название">
-                    <textarea v-model="note.text" rows="10" cols="50" name="note-text" placeholder="Введите заметку"></textarea>
+                    <input v-model="note.title" class="input-dark-green" name="note-name" type="text" placeholder="Введите название">
+                    <textarea class="input-dark-green" v-model="note.text" rows="10" name="note-text" placeholder="Введите заметку"></textarea>
+                    <h5 class="modal-title-tags">Теги</h5>
                     <ul class="list-tags">
                       <li v-for="(tag, index) in note.tags" :key="tag.t_id" class="note-tag">
-                          <input v-model="tag.name" name="list-tag-name" type="text" placeholder="Введите тег">
+                          <input class="input-dark-green" v-model="tag.name" name="list-tag-name" type="text" placeholder="Введите тег">
                           <div class="close" v-on:click="removeTagOfNote(index)"></div>
                       </li>
                     </ul>
                     <div class="popup-control">
-                        <button name="note-tag-add" v-on:click="addTagIntoNote">Добавить тег</button>
+                        <button name="note-tag-add" class="btn-dark-green" v-on:click="addTagIntoNote">Добавить тег</button>
                         <input type="file" name="image-input" @change="onFileSelected" multiple>
                     </div>
                </div>`,
@@ -150,8 +153,8 @@ Vue.component('v-select', {
     },
     template: `<div class="v-select">
                 <p v-on:click="isOptionsVisible = !isOptionsVisible" class="v-select__title">{{ selected.name }}</p>
-                <div v-if="isOptionsVisible" class="v-select__options">
-                    <p v-for="option in options" :key="option.value" v-on:click="selectOptions(option)">{{ option.name }}</p>
+                <div v-if="isOptionsVisible" class="v-select__options btn-dark-green">
+                    <p v-for="option in options" :key="option.value" v-on:click="selectOptions(option)" >{{ option.name }}</p>
                 </div>
              </div>`,
     methods: {
@@ -193,7 +196,7 @@ Vue.component('field-list', {
        }
     },
       template: `<li class="field-lists__list field-list field-unit">
-                     <button class="field-list__btn-remove btn-remove-close" v-on:click="removeList">Удалить</button>
+                     <div class="field-list__btn-remove btn-remove-close close" v-on:click="removeList"></div>
                      <div class="field-list__wrapper">
                         <span class="field-list__update-date">{{ list.date_update }}</span>
                         <h4 class="field-list__title">{{ list.title }}</h4>
@@ -204,7 +207,7 @@ Vue.component('field-list', {
                      <div class="field-lists__list-tags field-unit-tags">
                         <tag v-for="(tag, index) in list.tags" :key="tag.id" :id-tag="tag.id" :tag="tag"/>
                      </div>
-                     <button class="field-list__btn-edit btn-edit-close" v-on:click="editList">Редактировать</button>
+                     <button class="field-list__btn-edit btn-edit-close btn-dark-green" v-on:click="editList">Редактировать</button>
                  </li>`
 
 });
@@ -240,7 +243,7 @@ Vue.component('field-note', {
            }
        },
       template: `<li class="field-notes__note field-note field-unit">
-                     <button class="field-note__btn-remove btn-remove-close" v-on:click="removeNote">Удалить</button>
+                     <div class="field-note__btn-remove btn-remove-close close" v-on:click="removeNote"></div>
                      <div v-if="showImage" class="note__image">
                          <img v-if="note.filename" :src="'/images/' + note.filename" >
                      </div>
@@ -252,7 +255,7 @@ Vue.component('field-note', {
                      <div class="field-notes__note-tags field-unit-tags">
                         <tag v-for="(tag, index) in note.tags" :key="tag.id" :id-tag="tag.id" :tag="tag"/>
                      </div>
-                     <button class="field-note__btn-edit btn-edit-close" v-on:click="editNote">Редактировать</button>
+                     <button class="field-note__btn-edit btn-edit-close btn-dark-green" v-on:click="editNote">Редактировать</button>
                  </li>`
 });
 Vue.component('field-lists', {
@@ -274,10 +277,12 @@ Vue.component('field-lists', {
 Vue.component('field-tags', {
   props: ['tags'],
   template: `<ul class="field-tags">
-                    <li v-on:click="showAll">Все записи</li>
-                    <li v-for="(tag, index) in tags" :key="tag.id">
-                        <span class="tag-name" v-on:click="sortByTag(tag.id)">{{ tag.name }}</span>
-                        <div class="close" v-on:click="deleteTag(index)"></div>
+                    <li v-on:click="showAll" class="field-tag__inner">Все записи</li>
+                    <li v-for="(tag, index) in tags" :key="tag.id" class="field-tag">
+                        <div class="field-tag__inner">
+                            <div class="tag-name" v-on:click="sortByTag(tag.id)">{{ tag.name }}</div>
+                            <div class="tag-close close" v-on:click="deleteTag(index)"></div>
+                        </div>
                     </li>
              </ul>`,
     created: function() {

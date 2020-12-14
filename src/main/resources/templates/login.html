@@ -23,12 +23,12 @@
                 You have been logged out.
             </div>
             <form th:action="@{/login}" method="post">
-                <div><label> Имя пользователя: <input type="text" name="username"> </label></div>
-                <div><label> Пароль: <input type="password" name="password"> </label></div>
+                <div><label>Имя пользователя: <input class="input-dark-green" type="text" name="username"> </label></div>
+                <div><label>Пароль: <input class="input-dark-green" type="password" name="password"> </label></div>
                 <div><label>Запомни меня: <input type="checkbox" name="remember-me"></label></div>
-                <div><input type="submit" value="Войти"/></div>
+                <div><button class="btn-dark-green" type="submit">Войти</button> </div>
             </form>
-            <a th:href="@{/registration}">Регистрация</a>
+            <a th:href="@{/registration}" class="btn-dark-green">Регистрация</a>
         </div>
     </div>
 </main>
