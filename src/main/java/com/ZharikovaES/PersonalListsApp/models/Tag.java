@@ -23,30 +23,13 @@ public class Tag  implements Serializable {
     private Long userId;
 
 
-////    @JsonIgnoreProperties("tags")
-//    @JsonIgnore
-
-//    @JsonIgnore
-
-//    @JsonManagedReference
-
     @ManyToMany(mappedBy = "tags")
     @JsonIgnoreProperties("tags")
     private Set<List> lists = new HashSet<>();
 
-
-//    @JsonIgnore
-
-//    @JsonManagedReference
-
     @ManyToMany(mappedBy = "tags")
     @JsonIgnoreProperties("tags")
     private Set<Note> notes = new HashSet<>();
-//
-//    @JsonIgnoreProperties("tags")
-//    @JsonIgnore
-
-//    @JsonIgnore
 
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)

@@ -14,14 +14,9 @@
 </header>
 <main>
     <div class="container">
-        <div class="form-wrapper">
+        <div class="message-text">
             <p th:if="${message}" th:text="${message}"></p>
-            <form th:action="@{/registration}" method="post">
-                <div><label> Введите Ваш логин: <input class="input-dark-green" type="text" name="username"> </label></div>
-                <div><label> Введите Ваш пароль: <input class="input-dark-green" type="password" name="password"> </label></div>
-                <div><label>Ввведите Ваш адрес электронной почты: <input class="input-dark-green" type="email" name="email" placeholder="my@mail.com"> </label></div>
-                <div><button class="btn-dark-green" type="submit">Зарегистрировать аккаунт</button></div>
-            </form>
+            <p th:if="${message}">Перейдите по ссылке в письме.</p>
         </div>
     </div>
 </main>
@@ -36,7 +31,4 @@
         </p>
     </div>
 </footer>
-
-
 </body>
-</html>

@@ -211,6 +211,8 @@ main{
     flex-wrap: wrap;
 }
 .field-unit-tags{
+    display: flex;
+    flex-wrap: wrap;
 }
 .field-tags{
     display: flex;
@@ -318,6 +320,15 @@ main{
 
 .note__image img{
     width: 170px;
+}
+
+.message-text{
+    text-align: center;
+    padding-top: 10%;
+}
+.message-text p{
+    text-align: center;
+    font-size: 19px;
 }
 
 @media(max-width: 780px) {

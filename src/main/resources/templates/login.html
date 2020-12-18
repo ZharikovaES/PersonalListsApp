@@ -17,11 +17,12 @@
     <div class="container">
         <div class="form-wrapper">
             <div th:if="${param.error}">
-                Invalid username and password.
+                Некорректный логин или пароль.
             </div>
             <div th:if="${param.logout}">
-                You have been logged out.
+                Вы вышли из системы.
             </div>
+            <p th:if="${message}" th:text="${message}"></p>
             <form th:action="@{/login}" method="post">
                 <div><label>Имя пользователя: <input class="input-dark-green" type="text" name="username"> </label></div>
                 <div><label>Пароль: <input class="input-dark-green" type="password" name="password"> </label></div>
