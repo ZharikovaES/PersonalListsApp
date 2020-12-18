@@ -1,7 +1,5 @@
 package com.ZharikovaES.PersonalListsApp.models;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -38,7 +36,11 @@ public class User implements UserDetails, Serializable {
     @Column(name = "timezone")
     private String timezoneID;
 
-//    @JsonIgnoreProperties("user")
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "activation_code")
+    private String activationCode;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
@@ -52,8 +54,6 @@ public class User implements UserDetails, Serializable {
     @CollectionTable(name = "user_role", joinColumns = @JoinColumn(name = "user_id"))
     @Enumerated(EnumType.STRING)
     private Set<Role> role;
-
-//    @JsonIgnoreProperties("user")
 
     @JsonManagedReference
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -183,5 +183,19 @@ public class User implements UserDetails, Serializable {
         this.notes = notes;
     }
 
+    public String getEmail() {
+        return email;
+    }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public String getActivationCode() {
+        return activationCode;
+    }
+
+    public void setActivationCode(String activationCode) {
+        this.activationCode = activationCode;
+    }
 }

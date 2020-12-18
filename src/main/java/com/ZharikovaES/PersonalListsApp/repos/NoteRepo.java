@@ -15,10 +15,6 @@ public interface NoteRepo extends CrudRepository<Note, Long> {
     @Query("delete from Note n where n.id = :id")
     void deleteById(Long id);
 
-//    @Modifying
-//    @Query("update from Note n set n.image = '' where n.id = :id")
-//    void updateImage(@Param("id") Long id);
-
     @Query("select n from Note n join n.tags t where t.id = :tId and n.userId = :uId order by n.dateUpdate asc")
     java.util.List<Note> findAllByUserIdByTagIdByDateAsc(@Param("uId") Long uId, @Param("tId") Long tId);
 
