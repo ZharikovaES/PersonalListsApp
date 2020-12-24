@@ -94,7 +94,7 @@ Vue.component('modal-body-note', {
             this.$emit("image", event.target.files[0]);
           },
             removeImage: function () {
-               this.$emit('removei', '');
+               this.$emit('removei', this.note.filename);
                this.showImage = false;
             },
           },
@@ -114,7 +114,7 @@ Vue.component('modal-body-note', {
                     </ul>
                     <div class="popup-control">
                         <button name="note-tag-add" class="btn-dark-green" v-on:click="addTagIntoNote">Добавить тег</button>
-                        <input type="file" name="image-input" @change="onFileSelected" multiple>
+                        <input type="file" name="image-input" accept="image/*" @change="onFileSelected" multiple>
                     </div>
                </div>`,
                created: function() {
@@ -126,8 +126,26 @@ Vue.component('modal-body-note', {
 });
 Vue.component('list-item', {
   props: ['item'],
+  methods: {
+    check(){
+          fetch("http://127.0.0.1:8080/update-check-list", {
+            method: "POST",
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({id: this.item.id, is_marked: this.item.is_marked})
+          })
+        .then(response => {
+          if (!response.ok) throw Error(response.statusText);
+        })
+        .catch(error => console.log(error));
+
+        console.log(this.item.id, this.item.is_marked);
+
+    }
+  },
   template: `<li class="item-field-list__items">
-                <label :for="item.id"><input v-model="item.is_marked" name="list-item-checkbox" type="checkbox" :id="item.id">{{ item.text }}</label>
+                <label :for="item.id"><input @change="check" v-model="item.is_marked" name="list-item-checkbox" type="checkbox" :id="item.id">{{ item.text }}</label>
              </li>`
 });
 Vue.component('tag', {
@@ -209,13 +227,12 @@ Vue.component('field-list', {
                      </div>
                      <button class="field-list__btn-edit btn-edit-close btn-dark-green" v-on:click="editList">Редактировать</button>
                  </li>`
-
 });
 Vue.component('field-note', {
   props: ['note', 'notes'],
   data() {
     return {
-        showImage: false
+        showImage: this.note.filename !== ''
     }
   },
     methods: {
@@ -278,9 +295,9 @@ Vue.component('field-tags', {
   props: ['tags'],
   template: `<ul class="field-tags">
                     <li v-on:click="showAll" class="field-tag__inner">Все записи</li>
-                    <li v-for="(tag, index) in tags" :key="tag.id" class="field-tag">
+                    <li v-for="(tag, index) in tags" :key="tag.id_db" class="field-tag">
                         <div class="field-tag__inner">
-                            <div class="tag-name" v-on:click="sortByTag(tag.id)">{{ tag.name }}</div>
+                            <div class="tag-name" v-on:click="sortByTag(tag.id_db)">{{ tag.name }}</div>
                             <div class="tag-close close" v-on:click="deleteTag(index)"></div>
                         </div>
                     </li>
@@ -344,6 +361,7 @@ let app = new Vue({
         }],
         tags: [{
             t_id: 0,
+            id_db: null,
             name: ""
         }]
         },
@@ -355,6 +373,7 @@ let app = new Vue({
         }],
         tags: [{
             t_id: 0,
+            id_db: null,
             name: ""
         }]
         },
@@ -363,7 +382,9 @@ let app = new Vue({
         title: "",
         text: "",
         tags: [{
-              name: ""
+            t_id: 0,
+            id_db: null,
+            name: ""
           }],
         filename: "",
         file: null
@@ -374,16 +395,19 @@ let app = new Vue({
         tags: [{
               name: ""
           }],
+        hasImage: true,
         filename: "",
         file: null
         },
     notes: [],
     newTag: {
         t_id: 0,
+        id_db: null,
         name: ""
         },
     modifiedTag: {
         t_id: 0,
+        id_db: null,
         name: ""
     },
     tags: [],
@@ -454,39 +478,61 @@ let app = new Vue({
       },
       pushNote: function(){
           this.showPopUpNoteAdd = false;
-          const json = JSON.stringify(this.newNote);
-          const blob = new Blob([json], {
-            type: 'application/json'
-          });
-          const data = new FormData();
-          data.append("file", this.newNote.file);
-          data.append("note", blob);
-                fetch("http://127.0.0.1:8080/push-note", {
-                  method: "POST",
-                  body: data
-                })
-                  .then(response => {
-                    if (!response.ok) throw Error(response.statusText);
-                    return response.json();
+          console.log(this.newNote.file);
+          if (this.newNote.file === undefined || this.newNote.file === null) {
+              fetch("http://127.0.0.1:8080/push-note", {
+                method: "POST",
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(this.newNote)
+              })
+              .then(response => {
+                if (!response.ok) throw Error(response.statusText);
+                return response.json();
+              })
+              .then(data => {
+                      this.notes.push(data.note);
+                      this.tags = data.tags;
+                      console.log(this.tags);
+              })
+              .catch(error => console.log(error));
+          } else {
+            const json = JSON.stringify(this.newNote);
+            const blob = new Blob([json], {
+              type: 'application/json'
+            });
+            const data = new FormData();
+            data.append("file", this.newNote.file);
+            data.append("note", blob);
+                  fetch("http://127.0.0.1:8080/push-note-image", {
+                    method: "POST",
+                    body: data
                   })
-                  .then(data => {
-                    this.notes.push(data.note);
-                    this.tags = data.tags;
-                    console.log(this.tags);
+                    .then(response => {
+                      if (!response.ok) throw Error(response.statusText);
+                      return response.json();
                     })
-                  .catch(error => console.log(error));
-                        this.newNote = {
-                         title: "",
-                         text: "",
-                            tags: [{
-                               t_id: 0,
-                               name: ""
-                            }]
-                         };
-                        this.newTag = {
-                          t_id: 0,
-                          name: ""
-                          };
+                    .then(data => {
+                      this.notes.push(data.note);
+                      this.tags = data.tags;
+                      console.log(this.tags);
+                      })
+                    .catch(error => console.log(error));
+          }
+        this.newNote = {
+         title: "",
+         text: "",
+            tags: [{
+               t_id: 0,
+               name: ""
+            }]
+         };
+        this.newTag = {
+          t_id: 0,
+          name: ""
+          };
+
       },
       changeList: function(){
           this.showPopUpListChange = false;
@@ -519,59 +565,109 @@ let app = new Vue({
       },
       changeNote: function(){
           this.showPopUpNoteChange = false;
-          const json = JSON.stringify(this.modifiedNote);
-          const blob = new Blob([json], {
-            type: 'application/json'
-          });
-          const data = new FormData();
-          data.append("file", this.modifiedNote.file);
-          data.append("note", blob);
+          console.log("filename ", this.modifiedNote.file, this.modifiedNote.hasImage);
+          if (this.modifiedNote.hasImage && (this.modifiedNote.file === undefined || this.modifiedNote.file === null)) {
+              fetch("http://127.0.0.1:8080/update-note-not-image", {
+                method: "PUT",
+                  headers: {
+                    'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(this.modifiedNote)
+              })
+              .then(response => {
+                if (!response.ok) throw Error(response.statusText);
+                return response.json();
+              })
+              .then(data => {
+                  console.log(data);
+                  let index = 0;
+                  this.notes.forEach((e, i) => {
+                      if (e.id === data.note.id) { index = i; }
+                  });
+                  this.notes.splice(index, 1, data.note);
+                  this.tags = data.tags;
+              })
+              .catch(error => console.log(error));
+          }
+          else if (this.modifiedNote.file === undefined || this.modifiedNote.file === null){
                 fetch("http://127.0.0.1:8080/update-note", {
                   method: "PUT",
-                  body: data
+                    headers: {
+                      'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(this.modifiedNote)
                 })
-            .then(response => {
-              if (!response.ok) throw Error(response.statusText);
-              return response.json();
-            })
-            .then(data => {
-                console.log(data);
-                let index = 0;
-                this.notes.forEach((e, i) => {
-                    if (e.id === data.note.id) { index = i; }
-                });
-                this.notes.splice(index, 1, data.note);
-                this.tags = data.tags;
-            })
-            .catch(error => console.log(error));
+                .then(response => {
+                  if (!response.ok) throw Error(response.statusText);
+                  return response.json();
+                })
+                .then(data => {
+                    console.log(data);
+                    let index = 0;
+                    this.notes.forEach((e, i) => {
+                        if (e.id === data.note.id) { index = i; }
+                    });
+                    this.notes.splice(index, 1, data.note);
+                    this.tags = data.tags;
+                })
+                .catch(error => console.log(error));
+          } else {
+            const json = JSON.stringify(this.modifiedNote);
+            const blob = new Blob([json], {
+              type: 'application/json'
+            });
+            const data = new FormData();
+            data.append("file", this.modifiedNote.file);
+            data.append("note", blob);
+              fetch("http://127.0.0.1:8080/update-note-image", {
+                method: "PUT",
+                body: data
+              })
+              .then(response => {
+                if (!response.ok) throw Error(response.statusText);
+                return response.json();
+              })
+              .then(data => {
+                  console.log(data);
+                  let index = 0;
+                  this.notes.forEach((e, i) => {
+                      if (e.id === data.note.id) { index = i; }
+                  });
+                  this.notes.splice(index, 1, data.note);
+                  console.log(this.notes);
+                  this.tags = data.tags;
+              })
+              .catch(error => console.log(error));
+          }
       },
       editNote: function(editNote){
           this.showPopUpNoteChange = true;
           this.modifiedNote = JSON.parse(JSON.stringify(editNote));
+          this.modifiedNote.hasImage = this.modifiedNote.filename.length > 0;
       },
       addNewTag: function(newTag) {
         this.newTag = newTag;
       },
       deleteTag: function(index){
-          fetch(`http://127.0.0.1:8080/delete-tag/${this.tags[index].id}`
+          fetch(`http://127.0.0.1:8080/delete-tag/${this.tags[index].id_db}`
           ,{
             method: "DELETE"
           })
             .then(response => {
               if (!response.ok) { throw Error(response.statusText); } else {
                     let delTag = this.tags[index];
-                    console.log(delTag.id);
+                    console.log(delTag.id_db);
                     this.tags.splice(this.tags.indexOf(delTag), 1);
                     this.lists.forEach(l => {
                         l.tags.forEach(t => {
-                            if (t.id === delTag.id) { l.tags.splice(l.tags.indexOf(t), 1); console.log("список", t.id); }
+                            if (t.id_db === delTag.id_db) { l.tags.splice(l.tags.indexOf(t), 1); console.log("список", t.id_db); }
                         })
 
                     });
                     this.notes.forEach(n => {
                         let el;
                         n.tags.forEach(t => {
-                            if (t.id === delTag.id) { n.tags.splice(n.tags.indexOf(t), 1); console.log("заметка", t.id); }
+                            if (t.id_db === delTag.id_db) { n.tags.splice(n.tags.indexOf(t), 1); console.log("заметка", t.id_db); }
                         })
                     });
               }
@@ -652,13 +748,14 @@ let app = new Vue({
       saveImageModifiedNote(file) {
         console.log(file);
         this.modifiedNote.file = file;
+        this.modifiedNote.hasImage = true;
       },
       removeImageNewNote(s){
         this.newNote.filename = s;
       },
       removeImageModifiedNote(s){
-              console.log(this.modifiedNote);
-        this.modifiedNote.filename = s;
+        this.modifiedNote.hasImage = false;
+        console.log(this.modifiedNote.hasImage);
       }
   }
 })

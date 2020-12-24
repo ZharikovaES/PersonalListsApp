@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "notes")
@@ -24,11 +25,11 @@ public class Note extends UnitData implements Serializable {
     )
 
     @JsonIgnoreProperties("notes")
-    private List<Tag> tags;
+    private Set<Tag> tags;
 
     public Note() {
     }
-    public Note(String title, String text, User user, List<Tag> tags) {
+    public Note(String title, String text, User user, Set<Tag> tags) {
         super(user, title);
         this.text = text;
         this.tags = tags;
@@ -42,11 +43,11 @@ public class Note extends UnitData implements Serializable {
         this.text = text;
     }
 
-    public List<Tag> getTags() {
+    public Set<Tag> getTags() {
         return tags;
     }
 
-    public void setTags(List<Tag> tags) {
+    public void setTags(Set<Tag> tags) {
         this.tags = tags;
     }
 
