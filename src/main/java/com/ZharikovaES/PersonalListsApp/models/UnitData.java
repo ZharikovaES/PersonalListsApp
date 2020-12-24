@@ -83,7 +83,8 @@ public class UnitData {
     public Calendar getNewCalendar() {
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(dateUpdate);
-        TimeZone timeZone = TimeZone.getTimeZone(user.getTimezoneID());
+        String id = user.getTimezoneID();
+        TimeZone timeZone = TimeZone.getTimeZone(id);
         calendar.setTimeZone(timeZone);
         return calendar;
     }

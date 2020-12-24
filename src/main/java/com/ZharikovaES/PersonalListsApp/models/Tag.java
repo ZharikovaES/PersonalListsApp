@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.*;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -40,14 +41,27 @@ public class Tag  implements Serializable {
     public Tag() {
     }
 
+    @Override
+    public boolean equals(Object obj){
+        if (!(obj instanceof Tag)) return false;
+        Tag tag = (Tag) obj;
+        return this.id.equals(tag.id) && this.name.equals(tag.name);
+    }
+    @Override
+    public int hashCode(){
+        return Objects.hash(id, name);
+    }
+
     public Tag(String name) {
         this.name = name;
     }
 
+    @JsonGetter("id_db")
     public Long getId() {
         return id;
     }
 
+    @JsonSetter("id_db")
     public void setId(Long id) {
         this.id = id;
     }
