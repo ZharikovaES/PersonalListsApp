@@ -28,18 +28,15 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.csrf().disable();
-        http.authorizeRequests()
-                .antMatchers("/", "/main", "/registration", "/css/**", "/js/**", "/img/**", "/activate/*").permitAll()
-                .anyRequest().authenticated()
-                .and()
-                .formLogin()
-                .loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/home").failureUrl("/login?error")
-                .permitAll()
-                .and()
-                .logout().deleteCookies("JSESSIONID")
-                .and()
-                .rememberMe().key("uniqueAndSecret");
+        http.csrf(csrf -> csrf.disable());
+        http.authorizeRequests(requests -> requests
+                .antMatchers( "/", "/css/**", "/js/**", "/img/**", "/activate/*").permitAll()
+                .anyRequest().authenticated())
+                .formLogin(login -> login
+                        .loginPage("/login").loginProcessingUrl("/login").defaultSuccessUrl("/home").failureUrl("/login?error")
+                        .permitAll())
+                .logout(logout -> logout.deleteCookies("JSESSIONID"))
+                .rememberMe(me -> me.key("uniqueAndSecret"));
     }
 
     @Override
