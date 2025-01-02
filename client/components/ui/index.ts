@@ -1,4 +1,4 @@
-import Footer from "../Footer/Footer.vue";
-import Header from "../Header/Header.vue";
+import Footer from '../Footer/TheFooter.vue';
+import Header from '../Header/TheHeader.vue';
 
-export {Header, Footer}
+export { Header, Footer };
