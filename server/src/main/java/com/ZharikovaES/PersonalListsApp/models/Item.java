@@ -1,7 +1,9 @@
 package com.ZharikovaES.PersonalListsApp.models;
 
 import com.fasterxml.jackson.annotation.*;
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
+
 import java.io.Serializable;
 
 @Entity
@@ -17,6 +19,10 @@ public class Item implements Serializable {
     @Column(name = "text")
     private String text;
 
+    @Column(name = "order_in_list", nullable = false)
+    @ColumnDefault("0")
+    private int order;
+
     @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "list_id")
@@ -25,9 +31,10 @@ public class Item implements Serializable {
     public Item() {
     }
 
-    public Item(boolean isMarked, String text) {
+    public Item(boolean isMarked, String text, int order) {
         this.isMarked = isMarked;
         this.text = text;
+        this.order = order;
     }
 
     public Long getId() {
@@ -63,4 +70,11 @@ public class Item implements Serializable {
         this.list = list;
     }
 
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
+    }
 }
