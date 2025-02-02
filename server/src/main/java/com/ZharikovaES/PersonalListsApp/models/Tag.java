@@ -2,7 +2,7 @@ package com.ZharikovaES.PersonalListsApp.models;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Objects;
@@ -109,5 +109,13 @@ public class Tag  implements Serializable {
         this.userId = userId;
     }
 
-
+    @PreRemove
+    private void removeAssociations() {
+        for(List list: lists){
+            list.getTags().remove(this);
+        }
+        for(Note note: notes){
+            note.getTags().remove(this);
+        }
+    }
 }

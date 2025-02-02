@@ -32,12 +32,6 @@ public class RegistrationController {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Bean
-    PasswordEncoder passwordEncoder(){
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        return passwordEncoder;
-    }
-
     @GetMapping("/registration")
     public String registration(){
 
@@ -61,17 +55,20 @@ public class RegistrationController {
         user.setDateLastActivity(createdDate);
         userRepo.save(user);
 
-        if (!StringUtils.isEmpty(user.getEmail())){
+        if (StringUtils.hasText(user.getEmail())){
 
             String message = String.format(
-                "Здравствуй, %s! \n" + "Добро пожаловать на сервис \"Personal Lists\".\nПерейдите по ссылке для подтверждения почты аккаунта: http://localhost:8080/activate/%s",
+                "Здравствуй, %s! \nДобро пожаловать на сервис \"Personal Lists\".\nПерейдите по ссылке для подтверждения почты аккаунта: http://localhost:8080/activate/%s",
                     user.getUsername(),
                     user.getActivationCode()
             );
             mailSender.send(user.getEmail(), "Activation code", message);
             model.put("message", "Письмо для подтверждения аккаунта отправлено на электронный адрес: " + user.getEmail());
+            return "send-email-message";
         }
-        return "send-email-message";
+
+        model.put("message", "Пользователь успешно зарегистрирован! Теперь Вы можете войти в систему");
+        return "login";
     }
 
     @GetMapping("/activate/{code}")

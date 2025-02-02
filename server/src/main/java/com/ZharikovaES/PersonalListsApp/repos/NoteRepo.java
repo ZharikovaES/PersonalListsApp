@@ -1,6 +1,7 @@
 package com.ZharikovaES.PersonalListsApp.repos;
 
 import com.ZharikovaES.PersonalListsApp.models.Note;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -13,11 +14,11 @@ public interface NoteRepo extends CrudRepository<Note, Long> {
 
     @Modifying
     @Query("delete from Note n where n.id = :id")
-    void deleteById(Long id);
+    void deleteById(@Param("id") Long id);
 
     @Modifying
-    @Query("update from Note n set n.filename = :newFileName where n.filename = :filename")
-    void updateImage(String filename, String newFileName);
+    @Query("update Note n set n.filename = :newFileName where n.filename = :filename")
+    void updateImage(@Param("filename") String filename, @Param("newFileName") String newFileName);
 
     @Query("select n from Note n join n.tags t where t.id = :tId and n.userId = :uId order by n.dateUpdate asc")
     java.util.List<Note> findAllByUserIdByTagIdByDateAsc(@Param("uId") Long uId, @Param("tId") Long tId);
@@ -45,6 +46,13 @@ public interface NoteRepo extends CrudRepository<Note, Long> {
 
     @Query("select n from Note n where n.userId = :uId and n.title LIKE CONCAT('%', :title, '%') order by n.dateUpdate asc")
     java.util.List<Note> findAllByUserIdByTitleByDateAsc(@Param("uId") Long uId, @Param("title") String title);
+
+    java.util.List<Note> findByUserIdAndTitleIsLike(@Param("uId") Long uId, @Param("title") String title, Pageable pageable);
+    @Query("select n from Note n join n.tags t where t.id = :tId and n.userId = :uId and n.title LIKE CONCAT('%', :title, '%')")
+    java.util.List<Note> findByUserIdAndTagIdAndTitleIsLike(@Param("uId") Long uId, @Param("tId") Long tId, @Param("title") String title, Pageable pageable);
+    java.util.List<Note> findByUserId(@Param("uId") Long uId, Pageable pageable);
+    @Query("select n from Note n join n.tags t where t.id = :tId and n.userId = :uId")
+    java.util.List<Note> findByUserIdAndTagId(@Param("uId") Long uId, @Param("tId") Long tId, Pageable pageable);
 
 
 }

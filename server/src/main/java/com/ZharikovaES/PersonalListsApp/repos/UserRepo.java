@@ -18,5 +18,5 @@ public interface UserRepo extends CrudRepository<User, Long> {
     void updateLastDateActive(@Param("date") Date date, @Param("username") String username);
 
 
-    User findByActivationCode(String code);
+    User findByActivationCode(@Param("code") String code);
 }
