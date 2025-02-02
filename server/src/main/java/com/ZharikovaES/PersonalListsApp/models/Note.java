@@ -2,9 +2,10 @@ package com.ZharikovaES.PersonalListsApp.models;
 
 import com.fasterxml.jackson.annotation.*;
 
-import javax.persistence.*;
+import jakarta.persistence.*;
+import org.hibernate.annotations.ColumnDefault;
+
 import java.io.Serializable;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -17,7 +18,7 @@ public class Note extends UnitData implements Serializable {
     @Column(name = "image")
     private String filename;
 
-    @ManyToMany(cascade = { CascadeType.ALL })
+    @ManyToMany(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     @JoinTable(
             name = "note_tags",
             joinColumns = { @JoinColumn(name = "note_id") },
@@ -27,12 +28,17 @@ public class Note extends UnitData implements Serializable {
     @JsonIgnoreProperties("notes")
     private Set<Tag> tags;
 
+    @Column(name = "view_order", nullable = false)
+    @ColumnDefault("0")
+    private int order;
+
     public Note() {
     }
-    public Note(String title, String text, User user, Set<Tag> tags) {
+    public Note(String title, String text, User user, Set<Tag> tags, int order) {
         super(user, title);
         this.text = text;
         this.tags = tags;
+        this.order = order;
     }
 
     public String getText() {
@@ -57,5 +63,13 @@ public class Note extends UnitData implements Serializable {
 
     public void setFilename(String filename) {
         this.filename = filename;
+    }
+
+    public int getOrder() {
+        return order;
+    }
+
+    public void setOrder(int order) {
+        this.order = order;
     }
 }
