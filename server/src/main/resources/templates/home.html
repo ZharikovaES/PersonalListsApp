@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
+      xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-slot="http://www.w3.org/1999/XSL/Transform"
+      xmlns:v-for="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Мои списки</title>
+    <link rel="stylesheet" href="/css/normalize.css">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/popup-default.css">
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+</head>
+    <body>
+    <div id="app">
+        <header class="header">
+            <div class="container">
+                <div class="header__inner">
+                    <h1 class="header__title">Вы вошли, как [[${#httpServletRequest.remoteUser}]]!</h1>
+                    <input class="input-search-name" v-on:keyup="searchByName" v-model="searchText" name="search-input" type="text" placeholder="Поиск по названию" />
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit">
+                            <img class="icon-reg" alt="Выход" src="data:image/svg+xml;base64,PHN2ZyBoZWlnaHQ9IjUxMnB0IiB2aWV3Qm94PSIwIDAgNTExIDUxMiIgd2lkdGg9IjUxMnB0IiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxwYXRoIGQ9Im0zNjEuNSAzOTJ2NDBjMCA0NC4xMTMyODEtMzUuODg2NzE5IDgwLTgwIDgwaC0yMDFjLTQ0LjExMzI4MSAwLTgwLTM1Ljg4NjcxOS04MC04MHYtMzUyYzAtNDQuMTEzMjgxIDM1Ljg4NjcxOS04MCA4MC04MGgyMDFjNDQuMTEzMjgxIDAgODAgMzUuODg2NzE5IDgwIDgwdjQwYzAgMTEuMDQ2ODc1LTguOTUzMTI1IDIwLTIwIDIwcy0yMC04Ljk1MzEyNS0yMC0yMHYtNDBjMC0yMi4wNTQ2ODgtMTcuOTQ1MzEyLTQwLTQwLTQwaC0yMDFjLTIyLjA1NDY4OCAwLTQwIDE3Ljk0NTMxMi00MCA0MHYzNTJjMCAyMi4wNTQ2ODggMTcuOTQ1MzEyIDQwIDQwIDQwaDIwMWMyMi4wNTQ2ODggMCA0MC0xNy45NDUzMTIgNDAtNDB2LTQwYzAtMTEuMDQ2ODc1IDguOTUzMTI1LTIwIDIwLTIwczIwIDguOTUzMTI1IDIwIDIwem0xMzYuMzU1NDY5LTE3MC4zNTU0NjktNDQuNzg1MTU3LTQ0Ljc4NTE1NmMtNy44MTI1LTcuODEyNS0yMC40NzY1NjItNy44MTI1LTI4LjI4NTE1NiAwLTcuODEyNSA3LjgwODU5NC03LjgxMjUgMjAuNDcyNjU2IDAgMjguMjgxMjVsMzEuODU1NDY5IDMxLjg1OTM3NWgtMjQwLjE0MDYyNWMtMTEuMDQ2ODc1IDAtMjAgOC45NTMxMjUtMjAgMjBzOC45NTMxMjUgMjAgMjAgMjBoMjQwLjE0MDYyNWwtMzEuODU1NDY5IDMxLjg1OTM3NWMtNy44MTI1IDcuODA4NTk0LTcuODEyNSAyMC40NzI2NTYgMCAyOC4yODEyNSAzLjkwNjI1IDMuOTA2MjUgOS4wMjM0MzggNS44NTkzNzUgMTQuMTQwNjI1IDUuODU5Mzc1IDUuMTIxMDk0IDAgMTAuMjM4MjgxLTEuOTUzMTI1IDE0LjE0NDUzMS01Ljg1OTM3NWw0NC43ODUxNTctNDQuNzg1MTU2YzE5LjQ5NjA5My0xOS40OTYwOTQgMTkuNDk2MDkzLTUxLjIxNDg0NCAwLTcwLjcxMDkzOHptMCAwIi8+PC9zdmc+" />
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </header>
+        <main>
+            <popup-unit-data :show-modal="showPopUpListAdd" :list="newList" v-on:close="closePopUpAdd">
+                <template v-slot:modal-header-title>
+                    Создаем список
+                </template>
+                <template v-slot:modal-body>
+                    <modal-body-list :list="newList" v-on:item-id="addItemIntoNewList" v-on:tag-id="addTagIntoNewList"/>
+                </template>
+                <template v-slot:modal-footer>
+                    <button class="modal-default-button btn-dark-green-back" v-on:click="pushList">
+                        Добавить
+                    </button>
+                </template>
+            </popup-unit-data>
+            <popup-unit-data :show-modal="showPopUpListChange" :list="modifiedList" v-on:close="closePopUpChange">
+                <template v-slot:modal-header-title>
+                    Редактируем список
+                </template>
+                <template v-slot:modal-body>
+                    <modal-body-list :list="modifiedList" v-on:item-id="addItemIntoModifiedList" v-on:tag-id="addTagIntoModifiedList"/>
+                </template>
+                <template v-slot:modal-footer>
+                    <button class="modal-default-button btn-dark-green-back" v-on:click="changeList">
+                        Сохранить
+                    </button>
+                </template>
+            </popup-unit-data>
+            <popup-unit-data :show-modal="showPopUpNoteAdd" :note="newNote" v-on:close="closePopUpAdd">
+                <template v-slot:modal-header-title>
+                    Создаем заметку
+                </template>
+                <template v-slot:modal-body>
+                    <modal-body-note :note="newNote" v-on:tag-id="addTagIntoNewNote" v-on:image="saveImageNewNote" v-on:removei="removeImageNewNote"/>
+                </template>
+                <template v-slot:modal-footer>
+                    <button class="modal-default-button btn-dark-green-back" v-on:click="pushNote">
+                        Добавить
+                    </button>
+                </template>
+            </popup-unit-data>
+            <popup-unit-data :show-modal="showPopUpNoteChange" :note="modifiedNote" v-on:close="closePopUpChange">
+                <template v-slot:modal-header-title>
+                    Редактируем заметку
+                </template>
+                <template v-slot:modal-body>
+                    <modal-body-note :note="modifiedNote" v-on:tag-id="addTagIntoModifiedNote"  v-on:image="saveImageModifiedNote" v-on:removei="removeImageModifiedNote" />
+                </template>
+                <template v-slot:modal-footer>
+                    <button class="modal-default-button btn-dark-green-back" v-on:click="changeNote">
+                        Сохранить
+                    </button>
+                </template>
+            </popup-unit-data>
+            <div class="container">
+            <div>
+            <field-tags :tags="tags" v-on:show-all="showAll" v-on:sort-tag-id="sortByTag" v-on:del="deleteTag"/>
+            </div>
+            <div class="controller">
+                <button id="show-modal-list" name="add-list" class="btn-dark-green-back" v-on:click="showPopUpListAdd = true">Добавить список</button>
+                <button id="show-modal-note" name="add-note" class="btn-dark-green-back" v-on:click="showPopUpNoteAdd = true">Добавить заметку</button>
+                <v-select :options="options" v-on:selected-check="optionSelect" class="btn-dark-green"/>
+            </div>
+
+            <div class="field-units">
+                <div class="field-units__column">
+                    <h3 class="field-units__column-title">Списки</h3>
+                <field-lists :lists="lists" v-on:edit="editList" :show-all-lists="showAllLists" /></div>
+                <div class="field-units__column">
+                    <h3 class="field-units__column-title">Заметки</h3>
+                <field-notes :notes="notes" v-on:edit="editNote" :show-all-notes="showAllNotes" /></div>
+            </div>
+        </div>
+    </main>
+    <footer class="footer">
+        <div class="container">
+            <ul class="footer__list">
+                <li class="list-footer__item"><a href="/">О нас</a></li>
+                <li class="list-footer__item"><a href="mailto:z.kate2000@gmail.com">Связаться с нами</a></li>
+            </ul>
+            <p class="footer__text">
+                Жарикова Е.С. ИКБО-12-18
+            </p>
+        </div>
+    </footer>
+    </div>
+    <script src="/js/main.js"></script>
+    </body>
+</html>

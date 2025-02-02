@@ -1,0 +1,38 @@
+version: "1.0"
+
+# Define services/containers
+services:
+  # MySQL container
+  mysql:
+    # Use mysql image
+    image: mysql:latest
+    # Connect to "personal-lists-app-network" network, as defined below
+    networks:
+      - personal-lists-app-network
+    # Pass a list of environment variables to the container
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+
+  # phpMyAdmin container
+  phpmyadmin:
+    # Use phpmyadmin/phpmyadmin image
+    image: phpmyadmin/phpmyadmin:latest
+    # Connect to "personal-lists-app-network" network, as defined below
+    networks:
+      - personal-lists-app-network
+    # Map port 8080 on the host to port 80 inside the container
+    # Syntax is: "HOST_PORT:CONTAINER_PORT"
+    ports:
+      - "8090:80"
+    # Pass a list of environment variables to the container
+    environment:
+      PMA_HOST: mysql
+    # Wait for "mysql" container to start first
+    depends_on:
+      - mysql
+
+# Define networks
+networks:
+  personal-lists-app-network:
