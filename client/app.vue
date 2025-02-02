@@ -1,6 +1,6 @@
 <template>
   <NuxtLayout>
-    <TheHeader />
+    <TheHeader name="test" :isAuth="true"/>
     <main>
       <NuxtPage />
     </main>

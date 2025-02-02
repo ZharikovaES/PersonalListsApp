@@ -7,6 +7,10 @@ import typescriptEslint from 'typescript-eslint';
 export default typescriptEslint.config(
   { ignores: ['.nuxt', 'node_modules'] },
   {
+    // root: true,
+    // env: {
+    //   ...eslintPluginVue.environments
+    // },
     extends: [
       eslint.configs.recommended,
       ...typescriptEslint.configs.recommended,

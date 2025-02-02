@@ -39,8 +39,8 @@ public class UserService implements
     }
 
     @Override
-    public UserDetails loadUserByUsername(String s) throws UsernameNotFoundException {
-        UserDetails user = userRepo.findByUsername(s);
+    public User loadUserByUsername(String s) throws UsernameNotFoundException {
+        User user = userRepo.findByUsername(s);
         if (user == null) {
             throw new UsernameNotFoundException("UserDetailsService returned null, which is an interface contract violation");
         }
@@ -51,7 +51,6 @@ public class UserService implements
         User user = userRepo.findByActivationCode(code);
 
         if (user == null) {
-
             return false;
         }
         user.setActivationCode(null);

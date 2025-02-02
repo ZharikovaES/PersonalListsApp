@@ -29,52 +29,52 @@ public class RegistrationController {
     @Autowired
     private MailSender mailSender;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    // @Autowired
+    // private PasswordEncoder passwordEncoder;
 
-    @Bean
-    PasswordEncoder passwordEncoder(){
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        return passwordEncoder;
-    }
+    // @Bean
+    // PasswordEncoder passwordEncoder(){
+    //     PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    //     return passwordEncoder;
+    // }
 
-    @GetMapping("/registration")
-    public String registration(){
+    // @GetMapping("/registration")
+    // public String registration(){
 
-        return "registration";
-    }
+    //     return "registration";
+    // }
 
-    @PostMapping("/registration")
-    public String addUser(User user, Map<String, Object> model){
-        User userFromDb = userRepo.findByUsername(user.getUsername());
+    // @PostMapping("/api/registration")
+    // public String addUser(User user, Map<String, Object> model){
+    //     User userFromDb = userRepo.findByUsername(user.getUsername());
 
-        if (userFromDb != null) {
-            model.put("message", "Пользователь уже существует!");
-            return "registration";
-        }
-        user.setActive(true);
-        user.setRoles(Collections.singleton(Role.USER));
-        user.setActivationCode(UUID.randomUUID().toString());
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-        Date createdDate = new Date();
-        user.setDateRegistration(createdDate);
-        user.setDateLastActivity(createdDate);
-        userRepo.save(user);
+    //     if (userFromDb != null) {
+    //         model.put("message", "Пользователь уже существует!");
+    //         return "registration";
+    //     }
+    //     user.setActive(true);
+    //     user.setRoles(Collections.singleton(Role.USER));
+    //     user.setActivationCode(UUID.randomUUID().toString());
+    //     user.setPassword(passwordEncoder.encode(user.getPassword()));
+    //     Date createdDate = new Date();
+    //     user.setDateRegistration(createdDate);
+    //     user.setDateLastActivity(createdDate);
+    //     userRepo.save(user);
 
-        if (!StringUtils.isEmpty(user.getEmail())){
+    //     if (!StringUtils.isEmpty(user.getEmail())){
 
-            String message = String.format(
-                "Здравствуй, %s! \n" + "Добро пожаловать на сервис \"Personal Lists\".\nПерейдите по ссылке для подтверждения почты аккаунта: http://localhost:8080/activate/%s",
-                    user.getUsername(),
-                    user.getActivationCode()
-            );
-            mailSender.send(user.getEmail(), "Activation code", message);
-            model.put("message", "Письмо для подтверждения аккаунта отправлено на электронный адрес: " + user.getEmail());
-        }
-        return "send-email-message";
-    }
+    //         String message = String.format(
+    //             "Здравствуй, %s! \n" + "Добро пожаловать на сервис \"Personal Lists\".\nПерейдите по ссылке для подтверждения почты аккаунта: http://localhost:8080/activate/%s",
+    //                 user.getUsername(),
+    //                 user.getActivationCode()
+    //         );
+    //         mailSender.send(user.getEmail(), "Activation code", message);
+    //         model.put("message", "Письмо для подтверждения аккаунта отправлено на электронный адрес: " + user.getEmail());
+    //     }
+    //     return "send-email-message";
+    // }
 
-    @GetMapping("/activate/{code}")
+    @GetMapping("/api/activate/{code}")
     private String activate(Model model, @PathVariable String code) {
         boolean isActivated = userService.activateUser(code);
 

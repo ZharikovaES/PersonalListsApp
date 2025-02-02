@@ -34,12 +34,12 @@ public class MessageController {
     @Value("${upload.path}")
     private String uploadPath;
 
-    @RequestMapping(method = RequestMethod.POST, value = "/update-check-list")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/update-check-list")
     public void saveCheckItem(@RequestBody Map<String,Object> itemData, @AuthenticationPrincipal User user) throws JsonProcessingException {
         System.out.println(itemData.get("id") + " " + itemData.get("is_marked"));
         itemRepo.updateCheck(Integer.toUnsignedLong((Integer)itemData.get("id")), (Boolean) itemData.get("is_marked"));
     }
-    @RequestMapping(method = RequestMethod.POST, value = "/push-list", consumes = MediaType.APPLICATION_JSON_VALUE, produces = "application/json")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/push-list", consumes = MediaType.APPLICATION_JSON_VALUE, produces = "application/json")
     public Map<String, Object> saveList(@RequestBody List list, @AuthenticationPrincipal User user) throws JsonProcessingException {
         java.util.List<Item> itemList = new ArrayList<>(list.getItems());
         for (Item item : itemList){
@@ -71,7 +71,7 @@ public class MessageController {
         map.put("tags", tagList1);
         return map;
     }
-    @RequestMapping(method = RequestMethod.POST, value = "/push-note-image", consumes = "multipart/form-data", produces = "application/json")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/push-note-image", consumes = "multipart/form-data", produces = "application/json")
     public Map<String, Object> saveNoteImage(@RequestPart("file") MultipartFile multipartFile, @RequestPart("note") Note note, @AuthenticationPrincipal User user) throws IOException {
         java.util.List<Tag> tagList = new ArrayList<>(note.getTags());
         note.getTags().clear();
@@ -110,7 +110,7 @@ public class MessageController {
         map.put("tags", tagList1);
         return map;
     }
-    @RequestMapping(method = RequestMethod.POST, value = "/push-note", produces = "application/json")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/push-note", produces = "application/json")
     public Map<String, Object> saveNote(@RequestBody Note note, @AuthenticationPrincipal User user) throws IOException {
         java.util.List<Tag> tagList = new ArrayList<>(note.getTags());
         note.getTags().clear();
@@ -140,13 +140,13 @@ public class MessageController {
         return map;
     }
 
-    @RequestMapping(method = RequestMethod.GET, value = "/tags", produces = "application/json")
+    @RequestMapping(method = RequestMethod.GET, value = "/api/tags", produces = "application/json")
     public ResponseEntity<java.util.List<Tag>> getAllTags(@AuthenticationPrincipal User user) {
         java.util.List<Tag> tags = tagRepo.findAll();
         return new ResponseEntity<>(tags, HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.PUT, value = "/update-list", produces = "application/json")
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/update-list", produces = "application/json")
     public Map<String, Object> updateList(@RequestBody List list, @AuthenticationPrincipal User user) {
         list.setUser(user);
         list.setDateUpdateByUser();
@@ -171,7 +171,7 @@ public class MessageController {
 
         return map;
     }
-    @RequestMapping(method = RequestMethod.PUT, value = "/update-note-not-image", produces = "application/json")
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/update-note-not-image", produces = "application/json")
     public Map<String, Object> updateNoteNotImage(@RequestBody Note note, @AuthenticationPrincipal User user) throws IOException {
         note.setUser(user);
         note.setDateUpdateByUser();
@@ -196,7 +196,7 @@ public class MessageController {
 
         return map;
     }
-    @RequestMapping(method = RequestMethod.PUT, value = "/update-note", produces = "application/json")
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/update-note", produces = "application/json")
     public Map<String, Object> updateNote(@RequestBody Note note, @AuthenticationPrincipal User user) throws IOException {
         File file = new File(uploadPath + "/" + note.getFilename());
         file.delete();
@@ -226,7 +226,7 @@ public class MessageController {
 
         return map;
     }
-    @RequestMapping(method = RequestMethod.PUT, value = "/update-note-image", consumes = "multipart/form-data", produces = "application/json")
+    @RequestMapping(method = RequestMethod.PUT, value = "/api/update-note-image", consumes = "multipart/form-data", produces = "application/json")
     public Map<String, Object> updateNoteImage(@RequestPart("file") MultipartFile multipartFile, @RequestPart Note note, @AuthenticationPrincipal User user) throws IOException {
 
         File file = new File(uploadPath + "/" + noteRepo.findFileNameById(note.getId()));
@@ -268,28 +268,28 @@ public class MessageController {
         return map;
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete-list/{id}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/delete-list/{id}")
     public void deleteList(@PathVariable("id") List list) {
         listRepo.delete(list);
     }
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete-note/{id}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/delete-note/{id}")
     public void deleteNote(@PathVariable("id") Note note) {
         File file = new File(uploadPath + "/" + note.getFilename());
         file.delete();
         noteRepo.delete(note);
     }
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete-tag/{id}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/delete-tag/{id}")
     public void deleteTag(@PathVariable("id") Long id) {
         tagRepo.deleteById(id);
     }
 
-    @RequestMapping(method = RequestMethod.DELETE, value = "/delete-note-image/{filename}")
+    @RequestMapping(method = RequestMethod.DELETE, value = "/api/delete-note-image/{filename}")
     public void deleteImage(@PathVariable("filename") String filename) {
         File file = new File(uploadPath + "/" + filename);
         file.delete();
         noteRepo.updateImage(filename, "");
     }
-    @RequestMapping(method = RequestMethod.POST, value = "/lists")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/lists")
     public java.util.List<List> getAllLists(@RequestBody Map<String,Object> req, @AuthenticationPrincipal User user) {
         System.out.println(req.entrySet());
         System.out.println(req.get("date") + " " + req.get("id"));
@@ -306,7 +306,7 @@ public class MessageController {
         return lists;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/notes")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/notes")
     public java.util.List<Note> getAllNotes(@RequestBody Map<String,Object> req, @AuthenticationPrincipal User user) {
         System.out.println(req.entrySet());
         System.out.println(req.get("date") + " " + req.get("id"));
@@ -323,7 +323,7 @@ public class MessageController {
         return notes;
     }
 
-    @RequestMapping(method = RequestMethod.POST, value = "/search-name")
+    @RequestMapping(method = RequestMethod.POST, value = "/api/search-name")
     public Map<String,Object> getByName(@RequestBody Map<String,Object> req, @AuthenticationPrincipal User user) {
         java.util.List<List> lists = new ArrayList<>();
         if ((Integer)req.get("id") != -1) {

@@ -1,0 +1,74 @@
+package com.ZharikovaES.PersonalListsApp.controllers;
+
+import lombok.RequiredArgsConstructor;
+
+import javax.security.auth.message.AuthException;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.ZharikovaES.PersonalListsApp.services.AuthService;
+import com.ZharikovaES.PersonalListsApp.services.JwtRequest;
+import com.ZharikovaES.PersonalListsApp.services.JwtResponse;
+import com.ZharikovaES.PersonalListsApp.services.RegistrationResponse;
+import com.ZharikovaES.PersonalListsApp.services.RefreshJwtRequest;
+
+@RestController
+@RequestMapping("api/auth")
+@RequiredArgsConstructor
+public class AuthController {
+
+    private final AuthService authService;
+
+    @PostMapping("registration")
+    public ResponseEntity<RegistrationResponse> registration(@RequestBody JwtRequest authRequest) {
+        RegistrationResponse authData = null;
+        try {
+          authData = authService.registration(authRequest);
+        } catch (AuthException e) {
+          return ResponseEntity
+                  .status(HttpStatus.UNAUTHORIZED).build();
+        }
+        return ResponseEntity.ok(authData);
+    }
+    @PostMapping("login")
+    public ResponseEntity<JwtResponse> login(@RequestBody JwtRequest authRequest) {
+        JwtResponse token = null;
+        try {
+          token = authService.login(authRequest);
+        } catch (AuthException e) {
+          return ResponseEntity
+                  .status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("token")
+    public ResponseEntity<JwtResponse> getNewAccessToken(@RequestBody RefreshJwtRequest request) {
+        JwtResponse token;
+        try {
+          token = authService.getAccessToken(request.getRefreshToken());
+        } catch (AuthException e) {
+          return ResponseEntity
+                  .status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(token);
+    }
+
+    @PostMapping("refresh")
+    public ResponseEntity<JwtResponse> getNewRefreshToken(@RequestBody RefreshJwtRequest request) {
+        JwtResponse token;
+        try {
+          token = authService.refresh(request.getRefreshToken());
+        } catch (AuthException e) {
+          return ResponseEntity
+                  .status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(token);
+    }
+
+}
