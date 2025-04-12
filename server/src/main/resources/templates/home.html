@@ -14,7 +14,11 @@
         <header class="header">
             <div class="container">
                 <div class="header__inner">
-                    <h1 class="header__title">Вы вошли, как [[${#httpServletRequest.remoteUser}]]!</h1>
+                    <h1 class="header__title">Вы вошли, как
+                        <span th:text="${remoteUser}">
+                            sample_user
+                        </span>
+                        !</h1>
                     <input class="input-search-name" v-on:keyup="searchByName" v-model="searchText" name="search-input" type="text" placeholder="Поиск по названию" />
                     <form th:action="@{/logout}" method="post">
                         <button type="submit">
