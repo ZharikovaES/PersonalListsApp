@@ -24,7 +24,7 @@ public class UserService implements
     }
 
     @Override
-    public void onApplicationEvent(AuthenticationSuccessEvent event) {
+    public void onApplicationEvent(@SuppressWarnings("null") AuthenticationSuccessEvent event) {
         String userName = ((UserDetails) event.getAuthentication().
                 getPrincipal()).getUsername();
         User user = userRepo.findByUsername(userName);
@@ -38,6 +38,12 @@ public class UserService implements
         userRepo.save(user);
     }
 
+    public boolean existsUserByUsername(String s) {
+        User user = userRepo.findByUsername(s);
+
+        return user != null;
+    }
+
     @Override
     public User loadUserByUsername(String s) throws UsernameNotFoundException {
         User user = userRepo.findByUsername(s);
@@ -47,14 +53,18 @@ public class UserService implements
         return user;
     }
 
-    public boolean activateUser(String code) {
+    public User addNewUser(User user) {
+      return userRepo.save(user);
+    }
+
+    public User activateUser(String code) {
         User user = userRepo.findByActivationCode(code);
 
         if (user == null) {
-            return false;
+            return null;
         }
         user.setActivationCode(null);
         userRepo.save(user);
-        return true;
+        return user;
     }
 }

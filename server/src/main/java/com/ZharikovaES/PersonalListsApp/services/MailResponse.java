@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class RegistrationResponse {
+public class MailResponse {
   private String message;
 }
