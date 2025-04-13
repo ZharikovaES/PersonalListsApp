@@ -1,10 +1,6 @@
 package com.ZharikovaES.PersonalListsApp.controllers;
 
-import lombok.RequiredArgsConstructor;
-
 import java.util.logging.Logger;
-
-import javax.security.auth.message.AuthException;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,15 +13,21 @@ import com.ZharikovaES.PersonalListsApp.services.AuthService;
 import com.ZharikovaES.PersonalListsApp.services.JwtRequest;
 import com.ZharikovaES.PersonalListsApp.services.JwtResponse;
 import com.ZharikovaES.PersonalListsApp.services.RegistrationResponse;
+
+import jakarta.security.auth.message.AuthException;
+
 import com.ZharikovaES.PersonalListsApp.services.RefreshJwtRequest;
 import com.ZharikovaES.PersonalListsApp.services.RegistrationRequest;
 
 @RestController
 @RequestMapping("api/auth")
-@RequiredArgsConstructor
 public class AuthController {
 
     private final AuthService authService;
+
+    public AuthController(AuthService authService) {
+      this.authService = authService;
+    }
 
     @PostMapping("registration")
     public ResponseEntity<RegistrationResponse> registration(@RequestBody RegistrationRequest authRequest) {

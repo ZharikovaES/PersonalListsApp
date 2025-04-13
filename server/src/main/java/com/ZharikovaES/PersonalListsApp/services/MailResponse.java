@@ -1,10 +1,17 @@
 package com.ZharikovaES.PersonalListsApp.services;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-
-@Getter
-@AllArgsConstructor
 public class MailResponse {
-  private String message;
+    private String message;
+
+    public MailResponse(String message) {
+        this.message = message;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }

@@ -1,6 +1,5 @@
 package com.ZharikovaES.PersonalListsApp.controllers;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,9 +11,12 @@ import com.ZharikovaES.PersonalListsApp.services.JwtAuthentication;
 
 @RestController
 @RequestMapping("api")
-@RequiredArgsConstructor
 public class Controller {
     private final AuthService authService;
+
+    public Controller(AuthService authService) {
+      this.authService = authService;
+    }
 
     @PreAuthorize("hasAuthority('USER')")
     @GetMapping("user")

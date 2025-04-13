@@ -5,7 +5,6 @@ import com.ZharikovaES.PersonalListsApp.services.AuthService;
 import com.ZharikovaES.PersonalListsApp.services.MailResponse;
 import com.ZharikovaES.PersonalListsApp.services.UserService;
 
-import lombok.RequiredArgsConstructor;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.ui.Model;
@@ -16,10 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("api")
-@RequiredArgsConstructor
 public class MailController {
     private final UserService userService;
     private final AuthService authService;
+
+    public MailController(UserService userService, AuthService authService) {
+      this.userService = userService;
+      this.authService = authService;
+    }
 
     @GetMapping("/activate/{code}")
     public ResponseEntity<MailResponse> activate(Model model, @PathVariable String code) {

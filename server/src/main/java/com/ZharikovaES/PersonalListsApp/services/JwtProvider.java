@@ -1,108 +1,93 @@
 package com.ZharikovaES.PersonalListsApp.services;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.MalformedJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
-import io.jsonwebtoken.io.Decoders;
-import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.security.SignatureException;
-import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.auth0.jwt.interfaces.DecodedJWT;
+import com.auth0.jwt.interfaces.JWTVerifier;
+
+import jakarta.security.auth.message.AuthException;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import java.security.Key;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.Date;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-@Slf4j
 @Component
 public class JwtProvider {
 
-    private final SecretKey jwtAccessSecret;
-    private final SecretKey jwtRefreshSecret;
+    private final Algorithm accessAlgorithm;
+    private final Algorithm refreshAlgorithm;
+    private final Logger logger = Logger.getLogger(JwtProvider.class.getName());
 
     public JwtProvider(
-            @Value("${jwt.secret.access}") String jwtAccessSecret,
-            @Value("${jwt.secret.refresh}") String jwtRefreshSecret
+            @Value("${jwt.secret.access}") String accessSecret,
+            @Value("${jwt.secret.refresh}") String refreshSecret
     ) {
-        this.jwtAccessSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtAccessSecret));
-        this.jwtRefreshSecret = Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtRefreshSecret));
+        this.accessAlgorithm = Algorithm.HMAC256(accessSecret);
+        this.refreshAlgorithm = Algorithm.HMAC256(refreshSecret);
     }
 
-    public String generateAccessToken(@NonNull UserDetails user) {
-        final LocalDateTime now = LocalDateTime.now();
-        final Instant accessExpirationInstant = now.plusMinutes(5).atZone(ZoneId.systemDefault()).toInstant();
-        final Date accessExpiration = Date.from(accessExpirationInstant);
-        return Jwts.builder()
-                .setSubject(user.getUsername())
-                .setExpiration(accessExpiration)
-                .signWith(jwtAccessSecret)
-                // .claim("roles", user.)
-                // .claim("firstName", user.getFirstName())
-                .compact();
+    public String generateAccessToken(UserDetails user) {
+        Instant now = Instant.now();
+        return JWT.create()
+                .withSubject(user.getUsername())
+                .withIssuedAt(Date.from(now))
+                .withExpiresAt(Date.from(now.plus(5, ChronoUnit.MINUTES)))
+                .sign(accessAlgorithm);
     }
 
-    public String generateRefreshToken(@NonNull UserDetails user) {
-        final LocalDateTime now = LocalDateTime.now();
-        final Instant refreshExpirationInstant = now.plusDays(30).atZone(ZoneId.systemDefault()).toInstant();
-        final Date refreshExpiration = Date.from(refreshExpirationInstant);
-        return Jwts.builder()
-                .setSubject(user.getUsername())
-                .setExpiration(refreshExpiration)
-                .signWith(jwtRefreshSecret)
-                .compact();
+    public String generateRefreshToken(UserDetails user) {
+        Instant now = Instant.now();
+        return JWT.create()
+                .withSubject(user.getUsername())
+                .withIssuedAt(Date.from(now))
+                .withExpiresAt(Date.from(now.plus(30, ChronoUnit.DAYS)))
+                .sign(refreshAlgorithm);
     }
 
-    public boolean validateAccessToken(@NonNull String accessToken) {
-        return validateToken(accessToken, jwtAccessSecret);
+    public boolean validateAccessToken(String token) {
+        return validateToken(token, accessAlgorithm);
     }
 
-    public boolean validateRefreshToken(@NonNull String refreshToken) {
-        return validateToken(refreshToken, jwtRefreshSecret);
+    public boolean validateRefreshToken(String token) {
+        return validateToken(token, refreshAlgorithm);
     }
 
-    private boolean validateToken(@NonNull String token, @NonNull Key secret) {
+    public DecodedJWT getAccessClaims(String token) {
+        return decodeToken(token, accessAlgorithm);
+    }
+
+    public DecodedJWT getRefreshClaims(String token) {
+        return decodeToken(token, refreshAlgorithm);
+    }
+
+    private boolean validateToken(String token, Algorithm algorithm) {
         try {
-            Jwts.parserBuilder()
-                    .setSigningKey(secret)
-                    .build()
-                    .parseClaimsJws(token);
+            JWTVerifier verifier = JWT.require(algorithm).build();
+            verifier.verify(token);
             return true;
-        } catch (ExpiredJwtException expEx) {
-            log.error("Token expired", expEx);
-        } catch (UnsupportedJwtException unsEx) {
-            log.error("Unsupported jwt", unsEx);
-        } catch (MalformedJwtException mjEx) {
-            log.error("Malformed jwt", mjEx);
-        } catch (SignatureException sEx) {
-            log.error("Invalid signature", sEx);
-        } catch (Exception e) {
-            log.error("invalid token", e);
+        } catch (JWTVerificationException e) {
+            logger.log(Level.SEVERE, "Invalid token: " + e.getMessage());
         }
         return false;
     }
 
-    public Claims getAccessClaims(@NonNull String token) {
-        return getClaims(token, jwtAccessSecret);
+    private DecodedJWT decodeToken(String token, Algorithm algorithm) {
+        JWTVerifier verifier = JWT.require(algorithm).build();
+        return verifier.verify(token);
     }
 
-    public Claims getRefreshClaims(@NonNull String token) {
-        return getClaims(token, jwtRefreshSecret);
-    }
-
-    private Claims getClaims(@NonNull String token, @NonNull Key secret) {
-        return Jwts.parserBuilder()
-                .setSigningKey(secret)
-                .build()
-                .parseClaimsJws(token)
-                .getBody();
-    }
+    public String getUsernameFromRefreshToken(String token) throws AuthException {
+      try {
+          return decodeToken(token, this.refreshAlgorithm).getSubject();
+      } catch (JWTVerificationException e) {
+          throw new AuthException("Невалидный refresh токен", e);
+      }
+  }
 }

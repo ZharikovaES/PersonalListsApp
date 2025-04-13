@@ -1,12 +1,14 @@
 package com.ZharikovaES.PersonalListsApp.services;
 
-import lombok.Getter;
-import lombok.Setter;
-
-@Getter
-@Setter
 public class RefreshJwtRequest {
 
-    public String refreshToken;
+    private String refreshToken;
 
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 }
