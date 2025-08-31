@@ -8,29 +8,34 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 @EnableWebSecurity
-public class WebSecurityConfig {
-    private final JwtFilter jwtFilter;
+@EnableWebMvc
+public class WebSecurityConfig implements WebMvcConfigurer {
+  private final JwtFilter jwtFilter;
 
-    public WebSecurityConfig(JwtFilter jwtFilter){
-      this.jwtFilter = jwtFilter;
-    }
+  public WebSecurityConfig(JwtFilter jwtFilter) {
+    this.jwtFilter = jwtFilter;
+  }
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        return http
-                .httpBasic(basic -> basic.disable())
-                .csrf(csrf -> csrf.disable())
-                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        authz -> authz
-                                .requestMatchers("/api/auth/login", "/api/auth/token", "/api/auth/registration", "/api/activate/{code}")
-                                .permitAll()
-                                .anyRequest().authenticated()
-                )
-                .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
-                .build();
+  @Bean
+  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+    return http
+      //FIXME: переделать CORS обработку
+      .cors(cors -> cors.configurationSource(request -> new org.springframework.web.cors.CorsConfiguration().applyPermitDefaultValues()))
+      .httpBasic(basic -> basic.disable())
+      .csrf(csrf -> csrf.disable())
+      .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+      .authorizeHttpRequests(
+          authz -> authz
+              .requestMatchers("/api/auth/login", "/api/auth/token", "/api/auth/registration", "/api/activate/{code}")
+              .permitAll()
+              .anyRequest().authenticated()
+      )
+      .addFilterAfter(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+      .build();
     }
 }

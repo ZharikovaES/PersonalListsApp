@@ -17,10 +17,25 @@ export default defineNuxtConfig({
         },
       },
     ],
+    '@vee-validate/nuxt',
   ],
+  veeValidate: {
+    autoImports: true,
+    componentNames: {
+      Form: 'VeeForm',
+      Field: 'VeeField',
+      FieldArray: 'VeeFieldArray',
+      ErrorMessage: 'VeeErrorMessage',
+    },
+  },
   fontawesome: {
     icons: {
-      solid: ['arrow-right-to-bracket'],
+      solid: ['user', 'arrow-right-to-bracket', 'spinner'],
+    }
+  },
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: process.env.API_URL || 'http://localhost:8080/api',
     }
   }
 });

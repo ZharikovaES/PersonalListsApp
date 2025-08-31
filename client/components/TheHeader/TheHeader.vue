@@ -4,19 +4,43 @@
     name?: string;
   }
 
-  const props = defineProps<HeaderProps>();
+  
+  defineProps<HeaderProps>();
+
+  const { mutate: logout } = useLogout();
+  const handleLogoutButton = () => {
+    logout(undefined, {
+      onSuccess: () => {
+        navigateTo('/login')
+      }
+    });
+  }
+
+  const mounted = ref(false);
+
+  onMounted(() => {
+    mounted.value = true;
+  });
 </script>
 
 <template>
-  <header class="py-5 bg-lime-600 border-b border-yellow-900 shadow-xl">
-    <div class="max-w-screen-xl px-3">
-      {{ name }}{{ isAuth }}
-      <div class="flex justify-between items-center">
-        <h1 class="font-['Caveat'] font-bold text-2xl">Очередной TODO 📝🗒️✏️</h1>
-        <NuxtLink to="/" title="Авторизация" class="text-xl">
-          <font-awesome icon="fa-arrow-right-to-bracket" />
-        </NuxtLink>
-      </div>
-    </div>
-  </header>
+<!-- <Transition
+    enter-active-class="transition duration-1000"
+    enter-from-class="-translate-y-[100%] opacity-0"
+    mode="out-in"
+    > -->
+    <header :class="['py-5 bg-lime-600 border-b border-yellow-900 shadow-xl text-stone-200 transition duration-1000', mounted ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full']">
+      <TheContainer>
+        <div class="flex justify-between items-center">
+          <h1 class="font-['Caveat'] font-bold text-2xl text-stone-200">Очередной TODO 📝🗒️✏️</h1>
+          <button v-if="isAuth" type="button" title="Выход" class="text-xl text-stone-200" @click="handleLogoutButton">
+            <font-awesome icon="fa-arrow-right-to-bracket" />
+          </button>
+          <NuxtLink v-else to="/home" title="Авторизация" class="text-xl text-stone-200">
+            <font-awesome icon="fa-user" />
+          </NuxtLink>
+        </div>
+      </TheContainer>
+    </header>
+  <!-- </Transition> -->
 </template>

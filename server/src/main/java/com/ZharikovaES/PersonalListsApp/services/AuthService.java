@@ -27,113 +27,108 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     public AuthService(UserService userService, JwtProvider jwtProvider, MailSender mailSender) {
-        this.userService = userService;
-        this.jwtProvider = jwtProvider;
-        this.mailSender = mailSender;
+      this.userService = userService;
+      this.jwtProvider = jwtProvider;
+      this.mailSender = mailSender;
     }
 
     public String registration(RegistrationRequest authRequest) throws AuthException {
-        if (authRequest == null || authRequest.getUsername() == null) {
-            throw new AuthException("Некорректный запрос на регистрацию");
-        }
+      if (authRequest == null || authRequest.getUsername() == null) {
+        throw new AuthException("Некорректный запрос на регистрацию");
+      }
 
-        if (userService.existsUserByUsername(authRequest.getUsername())) {
-            throw new AuthException("Пользователь уже существует!");
-        }
+      if (userService.existsUserByUsername(authRequest.getUsername())) {
+        throw new AuthException("Пользователь уже существует!");
+      }
 
-        User newUser = new User();
-        newUser.setActive(true);
-        newUser.setRoles(Collections.singleton(Role.USER));
-        newUser.setActivationCode(UUID.randomUUID().toString());
-        newUser.setPassword(passwordEncoder.encode(authRequest.getPassword()));
-        newUser.setUsername(authRequest.getUsername());
+      User newUser = new User();
+      newUser.setActive(true);
+      newUser.setRoles(Collections.singleton(Role.USER));
+      newUser.setActivationCode(UUID.randomUUID().toString());
+      newUser.setPassword(passwordEncoder.encode(authRequest.getPassword()));
+      newUser.setUsername(authRequest.getUsername());
 
-        Date createdDate = new Date();
-        newUser.setDateRegistration(createdDate);
-        newUser.setDateLastActivity(createdDate);
+      Date createdDate = new Date();
+      newUser.setDateRegistration(createdDate);
+      newUser.setDateLastActivity(createdDate);
 
-        if (authRequest.getEmail() == null || authRequest.getEmail().isEmpty()) {
-            throw new AuthException("Email отсутствует!");
-        }
+      if (authRequest.getEmail() == null || authRequest.getEmail().isEmpty()) {
+        throw new AuthException("Email отсутствует!");
+      }
 
-        newUser.setEmail(authRequest.getEmail());
+      newUser.setEmail(authRequest.getEmail());
 
-        String messageMail = String.format(
-            "Здравствуй, %s! \nДобро пожаловать на сервис \"Personal Lists\"." +
-            "\nПерейдите по ссылке для подтверждения почты аккаунта: http://localhost:8080/activate/%s",
-            newUser.getUsername(),
-            newUser.getActivationCode()
-        );
+      String messageMail = String.format(
+          "Здравствуй, %s! \nДобро пожаловать на сервис \"Personal Lists\"." +
+          "\nПерейдите по ссылке для подтверждения почты аккаунта: http://localhost:8080/activate/%s",
+          newUser.getUsername(),
+          newUser.getActivationCode()
+      );
 
-        mailSender.send(newUser.getEmail(), "Activation code", messageMail);
-        userService.addNewUser(newUser);
+      mailSender.send(newUser.getEmail(), "Activation code", messageMail);
+      userService.addNewUser(newUser);
 
-        return "Письмо для подтверждения аккаунта отправлено на электронный адрес: " + newUser.getEmail();
+      return "Письмо для подтверждения аккаунта отправлено на электронный адрес: " + newUser.getEmail();
     }
 
     public JwtResponse login(JwtRequest authRequest) throws AuthException {
-        if (authRequest == null) {
-            throw new AuthException("Некорректные данные");
-        }
+      if (authRequest == null) {
+        throw new AuthException("Некорректные данные");
+      }
 
-        User user;
-        try {
-            user = userService.loadUserByUsername(authRequest.getLogin());
-        } catch (UsernameNotFoundException e) {
-            throw new AuthException("Пользователь не найден");
-        }
+      User user;
+      try {
+        user = userService.loadUserByUsername(authRequest.getLogin());
+      } catch (UsernameNotFoundException e) {
+        throw new AuthException("Пользователь не найден");
+      }
 
-        if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
-            String accessToken = jwtProvider.generateAccessToken(user);
-            String refreshToken = jwtProvider.generateRefreshToken(user);
-            refreshStorage.put(user.getUsername(), refreshToken);
-            return new JwtResponse(accessToken, refreshToken);
-        } else {
-            throw new AuthException("Неправильный пароль");
-        }
-    }
+      if (passwordEncoder.matches(authRequest.getPassword(), user.getPassword())) {
+        String accessToken = jwtProvider.generateAccessToken(user);
+        String refreshToken = jwtProvider.generateRefreshToken(user);
+        refreshStorage.put(user.getUsername(), refreshToken);
 
-    public JwtResponse getAccessToken(String refreshToken) throws AuthException {
-        if (refreshToken == null) {
-            throw new AuthException("Токен отсутствует");
-        }
-
-        if (jwtProvider.validateRefreshToken(refreshToken)) {
-            String login = jwtProvider.getUsernameFromRefreshToken(refreshToken);
-            String savedRefreshToken = refreshStorage.get(login);
-
-            if (savedRefreshToken != null && savedRefreshToken.equals(refreshToken)) {
-                User user = userService.loadUserByUsername(login);
-                String newAccessToken = jwtProvider.generateAccessToken(user);
-                return new JwtResponse(newAccessToken, null);
-            }
-        }
-
-        return new JwtResponse(null, null);
+        return new JwtResponse(accessToken, refreshToken);
+      } else {
+        throw new AuthException("Неправильный пароль");
+      }
     }
 
     public JwtResponse refresh(String refreshToken) throws AuthException {
-        if (refreshToken == null) {
-            throw new AuthException("Токен отсутствует");
+      if (refreshToken == null) {
+        throw new AuthException("Токен отсутствует");
+      }
+
+      if (jwtProvider.validateRefreshToken(refreshToken)) {
+        String login = jwtProvider.getUsernameFromRefreshToken(refreshToken);
+        String savedRefreshToken = refreshStorage.get(login);
+
+        if (savedRefreshToken != null && savedRefreshToken.equals(refreshToken)) {
+          User user = userService.loadUserByUsername(login);
+          String newAccessToken = jwtProvider.generateAccessToken(user);
+          String newRefreshToken = jwtProvider.generateRefreshToken(user);
+          refreshStorage.put(user.getUsername(), newRefreshToken);
+          return new JwtResponse(newAccessToken, newRefreshToken);
         }
+      }
 
-        if (jwtProvider.validateRefreshToken(refreshToken)) {
-            String login = jwtProvider.getUsernameFromRefreshToken(refreshToken);
-            String savedRefreshToken = refreshStorage.get(login);
+      throw new AuthException("Невалидный JWT токен");
+    }
 
-            if (savedRefreshToken != null && savedRefreshToken.equals(refreshToken)) {
-                User user = userService.loadUserByUsername(login);
-                String newAccessToken = jwtProvider.generateAccessToken(user);
-                String newRefreshToken = jwtProvider.generateRefreshToken(user);
-                refreshStorage.put(user.getUsername(), newRefreshToken);
-                return new JwtResponse(newAccessToken, newRefreshToken);
-            }
-        }
-
+    public void logout(String refreshToken) throws AuthException {
+      if (refreshToken == null || !jwtProvider.validateRefreshToken(refreshToken)) {
         throw new AuthException("Невалидный JWT токен");
+      }
+
+      String login = jwtProvider.getUsernameFromRefreshToken(refreshToken);
+      if (login != null) {
+        refreshStorage.remove(login);
+      } else {
+        throw new AuthException("Пользователь не найден");
+      }
     }
 
     public JwtAuthentication getAuthInfo() {
-        return (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
+      return (JwtAuthentication) SecurityContextHolder.getContext().getAuthentication();
     }
 }
