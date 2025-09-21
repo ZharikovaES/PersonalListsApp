@@ -3,7 +3,6 @@
     isAuth: boolean;
     name?: string;
   }
-
   
   defineProps<HeaderProps>();
 
@@ -11,7 +10,7 @@
   const handleLogoutButton = () => {
     logout(undefined, {
       onSuccess: () => {
-        navigateTo('/login')
+        navigateTo('/auth')
       }
     });
   }

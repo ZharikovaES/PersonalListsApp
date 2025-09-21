@@ -4,5 +4,5 @@
   });
 </script>
 <template>
-  <div>main</div>
+  <div>home</div>
 </template>

@@ -1,4 +1,4 @@
-import { register, login, logout } from '~/api/auth'
+import { register, login, logout, activateEmail } from '~/api/auth'
 import { useMutation } from "@tanstack/vue-query"
 
 export const useRegistration = () => {
@@ -20,4 +20,13 @@ export const useLogout = () => {
   return useMutation({
     mutationFn: logout
   });
+}
+
+export const useActivateEmail = () => {
+  return useMutation({
+    mutationFn: activateEmail,
+    onError: (error) => {
+      console.error(error);
+    }
+  })
 }

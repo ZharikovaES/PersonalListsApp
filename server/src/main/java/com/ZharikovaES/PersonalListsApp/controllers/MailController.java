@@ -1,20 +1,21 @@
 package com.ZharikovaES.PersonalListsApp.controllers;
 
 import com.ZharikovaES.PersonalListsApp.models.User;
+import com.ZharikovaES.PersonalListsApp.services.ActivateCodeRequest;
 import com.ZharikovaES.PersonalListsApp.services.AuthService;
 import com.ZharikovaES.PersonalListsApp.services.MailResponse;
 import com.ZharikovaES.PersonalListsApp.services.UserService;
 
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+
 
 @RestController
-@RequestMapping("api")
+@RequestMapping("api/auth")
 public class MailController {
     private final UserService userService;
     private final AuthService authService;
@@ -24,10 +25,10 @@ public class MailController {
       this.authService = authService;
     }
 
-    @GetMapping("/activate/{code}")
-    public ResponseEntity<MailResponse> activate(Model model, @PathVariable String code) {
+    @PostMapping("/activate")
+    public ResponseEntity<MailResponse> activate(@RequestBody ActivateCodeRequest request) {
         MailResponse mailResponse = null;
-        User user = userService.activateUser(code);
+        User user = userService.activateUser(request.getCode());
         String message = null;
         
         if (user != null) {

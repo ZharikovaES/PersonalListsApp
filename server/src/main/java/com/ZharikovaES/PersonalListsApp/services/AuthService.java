@@ -33,6 +33,8 @@ public class AuthService {
     }
 
     public String registration(RegistrationRequest authRequest) throws AuthException {
+      String APP_URL = "http://localhost:3000";
+
       if (authRequest == null || authRequest.getUsername() == null) {
         throw new AuthException("Некорректный запрос на регистрацию");
       }
@@ -60,7 +62,7 @@ public class AuthService {
 
       String messageMail = String.format(
           "Здравствуй, %s! \nДобро пожаловать на сервис \"Personal Lists\"." +
-          "\nПерейдите по ссылке для подтверждения почты аккаунта: http://localhost:8080/activate/%s",
+          "\nПерейдите по ссылке для подтверждения почты аккаунта: " + APP_URL + "/activate/%s",
           newUser.getUsername(),
           newUser.getActivationCode()
       );

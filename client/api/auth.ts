@@ -6,21 +6,29 @@ interface TokensResponse {
 }
 
 interface LoginForm {
-  username: string;
+  login: string;
   password: string;
   remember: boolean;
 }
 
-export const register = (form: {
+interface MailResponse {
+  message: string;
+}
+
+export const register = async (form: {
   username: string;
   email: string;
   password: string;
 }) => {
   const { $api } = useNuxtApp();
-  return $api('/api/auth/registration', {
+  const res: TokensResponse = await $api('/auth/registration', {
     method: 'POST',
     body: form
   });
+
+  // const auth = useAuthStore();
+  // auth.setTokens(res.accessToken, res.refreshToken);
+  return res;
 }
 
 export const login = async (form: LoginForm) => {
@@ -32,6 +40,7 @@ export const login = async (form: LoginForm) => {
   
   const auth = useAuthStore();
   auth.setTokens(res.accessToken, res.refreshToken);
+  auth.setIsAuth(true);
   return res;
 }
 
@@ -68,5 +77,16 @@ export const refreshAccessToken = async () => {
     }
   });
   auth.setTokens(res.accessToken, res.refreshToken);
+  return res;
+}
+
+export const activateEmail = async (code: string) => {
+  const { $api } = useNuxtApp();
+  const res: MailResponse = await $api('/auth/activate', {
+    method: 'POST',
+    body: {
+      code
+    }
+  });
   return res;
 }

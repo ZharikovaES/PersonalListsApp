@@ -31,7 +31,7 @@ public class WebSecurityConfig implements WebMvcConfigurer {
       .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .authorizeHttpRequests(
           authz -> authz
-              .requestMatchers("/api/auth/login", "/api/auth/token", "/api/auth/registration", "/api/activate/{code}")
+              .requestMatchers("/api/auth/login", "/api/auth/token", "/api/auth/registration", "/api/auth/activate")
               .permitAll()
               .anyRequest().authenticated()
       )

@@ -16,9 +16,9 @@ export default defineNuxtPlugin(() => {
       if (response.status === 401) {
         const currentPath = router.currentRoute.value.path;
         storeAuth.clearTokens();
-        
-        if (currentPath !== '/login') {
-          await navigateTo('/login');
+
+        if (currentPath !== '/auth') {
+          await navigateTo('/auth');
         } else {
           const errorApi = new ApiError('Пользователь не найден. Зарегистрируйтесь', response.status, response._data);
           return Promise.reject(errorApi);
